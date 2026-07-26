@@ -21,6 +21,17 @@
       "link": "https://ethiojobs.net/job/X8CfzfPK2w-storekeeper",
       "status": "submitted",
       "createdAt": "2026-07-26 15:53:42"
+    },
+    {
+      "id": "1785082549.794613",
+      "name": "pila",
+      "uni": "aaas",
+      "deadline": "2026-07-26",
+      "country": "",
+      "notes": "g\n\nd\ng\nd\n\ndf\n\ndf\nd\ndf",
+      "link": "",
+      "status": "active",
+      "createdAt": "2026-07-26 16:15:49"
     }
   ],
   "jobs": [
@@ -136,6 +147,13 @@
       "action": "Updated CV",
       "type": "CV",
       "name": "My Master CV",
+      "details": ""
+    },
+    {
+      "timestamp": "2026-07-26 16:15:49",
+      "action": "Added",
+      "type": "Scholarship",
+      "name": "pila",
       "details": ""
     }
   ],
