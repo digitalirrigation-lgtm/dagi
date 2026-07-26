@@ -71,8 +71,8 @@
   ],
   "masterCV": {
     "title": "My Master CV",
-    "content": "kalta bacha mita",
-    "lastUpdated": "2026-07-26 15:52:33"
+    "content": "gguiil,;,;lkpigftvgcg",
+    "lastUpdated": "2026-07-26 16:14:53"
   },
   "history": [
     {
@@ -130,6 +130,14 @@
       "type": "Job",
       "name": "misge",
       "details": ""
+    },
+    {
+      "timestamp": "2026-07-26 16:14:53",
+      "action": "Updated CV",
+      "type": "CV",
+      "name": "My Master CV",
+      "details": ""
     }
-  ]
+  ],
+  "wordExport": []
 }
