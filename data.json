@@ -27,7 +27,16 @@
   ],
   "masterCV": {
     "title": "My Master CV",
-    "content": "zed10\nsjljs\nsjldjj\nsdjoj\n",
-    "lastUpdated": "2026-07-26 15:45:25"
-  }
+    "content": "kalta bacha mita",
+    "lastUpdated": "2026-07-26 15:52:33"
+  },
+  "history": [
+    {
+      "timestamp": "2026-07-26 15:52:33",
+      "action": "Updated CV",
+      "type": "CV",
+      "name": "My Master CV",
+      "details": ""
+    }
+  ]
 }
