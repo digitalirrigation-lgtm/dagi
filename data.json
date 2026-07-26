@@ -19,7 +19,7 @@
       "country": "",
       "notes": "life is now and here ",
       "link": "https://ethiojobs.net/job/X8CfzfPK2w-storekeeper",
-      "status": "active",
+      "status": "submitted",
       "createdAt": "2026-07-26 15:53:42"
     }
   ],
@@ -55,6 +55,13 @@
       "type": "Scholarship",
       "name": "moon",
       "details": "Deadline: 2026-07-28"
+    },
+    {
+      "timestamp": "2026-07-26 15:54:09",
+      "action": "Submitted",
+      "type": "Scholarship",
+      "name": "moon",
+      "details": ""
     }
   ]
 }
