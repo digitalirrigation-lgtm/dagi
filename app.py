@@ -7,6 +7,8 @@ import time
 import pandas as pd
 from calendar import monthcalendar
 import os
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 # ========== SET ETHIOPIA TIME ZONE ==========
 os.environ['TZ'] = 'Africa/Addis_Ababa'
@@ -38,14 +40,11 @@ st.set_page_config(
 
 # ========== ETHIOPIA TIME ==========
 def get_ethiopia_time():
-    """Get current time in Ethiopia (Addis Ababa)"""
     try:
-        # Try to use timezone
         import pytz
         ethiopia_tz = pytz.timezone('Africa/Addis_Ababa')
         return datetime.now(ethiopia_tz)
     except:
-        # Fallback: add 3 hours to UTC (Ethiopia is UTC+3)
         return datetime.utcnow() + timedelta(hours=3)
 
 # ========== CUSTOM CSS ==========
@@ -131,18 +130,6 @@ st.markdown("""
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
     
-    .download-btn {
-        background: #28a745;
-        color: white;
-        padding: 8px 16px;
-        border-radius: 8px;
-        border: none;
-        font-weight: bold;
-        cursor: pointer;
-        transition: all 0.3s;
-    }
-    .download-btn:hover { background: #218838; transform: scale(1.05); }
-    
     .note-card {
         background: #fff3cd;
         padding: 15px;
@@ -176,14 +163,6 @@ st.markdown("""
     .calendar-day.selected { background: #007bff; color: white; border-color: #007bff; }
     .calendar-day.has-items { background: #28a745; color: white; }
     .calendar-day.today { border: 3px solid #007bff; font-weight: bold; }
-    .calendar-header {
-        background: #007bff;
-        color: white;
-        padding: 10px;
-        border-radius: 10px 10px 0 0;
-        text-align: center;
-        font-weight: bold;
-    }
     
     .opportunity-card {
         background: white;
@@ -293,7 +272,6 @@ def add_history(data, action, item_type, item_name, details=""):
     return data
 
 def generate_individual_word(item, item_type):
-    """Generate Word document for a single item"""
     word = "=" * 70 + "\n"
     word += f"📚 {item_type.upper()} DETAILS\n"
     word += "=" * 70 + "\n\n"
@@ -324,6 +302,33 @@ def generate_individual_word(item, item_type):
     
     return word
 
+def generate_word_cv(data, cv_type):
+    """Generate Word format for Master or Minor CV"""
+    cv = data.get(cv_type, {})
+    
+    word = "=" * 80 + "\n"
+    word += f"📄 {cv.get('title', 'CV').upper()}\n"
+    word += "=" * 80 + "\n"
+    word += f"🕐 Generated: {get_ethiopia_time().strftime('%Y-%m-%d %H:%M:%S')} (Addis Ababa, Ethiopia)\n"
+    word += f"📅 Last Updated: {cv.get('lastUpdated', 'Never')}\n"
+    word += "=" * 80 + "\n\n"
+    
+    if cv.get('content'):
+        word += cv.get('content') + "\n\n"
+    
+    if cv.get('sections'):
+        for section in cv.get('sections', []):
+            word += f"\n{'=' * 60}\n"
+            word += f"📌 {section.get('title', 'Section')}\n"
+            word += f"{'=' * 60}\n"
+            word += section.get('content', '') + "\n"
+    
+    word += "\n" + "=" * 80 + "\n"
+    word += "📊 END OF CV\n"
+    word += "=" * 80 + "\n"
+    
+    return word
+
 # ========== LOAD DATA ==========
 
 if 'data' not in st.session_state:
@@ -331,6 +336,8 @@ if 'data' not in st.session_state:
     st.session_state.s_saving = False
     st.session_state.j_saving = False
     st.session_state.selected_date = None
+    # Store individual word exports as dict
+    st.session_state.word_exports = {}
 
 data = st.session_state.data
 
@@ -415,6 +422,101 @@ with col5:
 
 st.markdown("---")
 
+# ========== PROGRESS CHARTS ==========
+
+st.header("📈 Progress Charts - Submissions Over Time")
+
+# Prepare data for chart
+scholarships = data.get('scholarships', [])
+jobs = data.get('jobs', [])
+
+# Create dataframe with submission dates
+submission_data = []
+for s in scholarships:
+    if s.get('status') in ['submitted', 'accepted']:
+        try:
+            date_obj = datetime.strptime(s.get('createdAt', ''), '%Y-%m-%d %H:%M:%S')
+            submission_data.append({'date': date_obj, 'type': 'Scholarship'})
+        except:
+            pass
+for j in jobs:
+    if j.get('status') in ['submitted', 'accepted']:
+        try:
+            date_obj = datetime.strptime(j.get('createdAt', ''), '%Y-%m-%d %H:%M:%S')
+            submission_data.append({'date': date_obj, 'type': 'Job'})
+        except:
+            pass
+
+if submission_data:
+    df = pd.DataFrame(submission_data)
+    df['date'] = pd.to_datetime(df['date'])
+    df['day'] = df['date'].dt.date
+    
+    # Count by day
+    daily_counts = df.groupby(['day', 'type']).size().unstack(fill_value=0)
+    # Also total per day
+    daily_total = df.groupby('day').size()
+    
+    # Create figure with subplots
+    fig = make_subplots(rows=2, cols=1, 
+                        subplot_titles=('📊 Submissions Per Day (Scholarships & Jobs)', 
+                                        '📈 Cumulative Progress'),
+                        vertical_spacing=0.2)
+    
+    # Line for scholarships per day
+    if 'Scholarship' in daily_counts.columns:
+        fig.add_trace(
+            go.Scatter(x=daily_counts.index, y=daily_counts['Scholarship'],
+                       mode='lines+markers', name='Scholarships',
+                       line=dict(color='#e94560', width=3),
+                       marker=dict(size=8)),
+            row=1, col=1
+        )
+    
+    # Line for jobs per day
+    if 'Job' in daily_counts.columns:
+        fig.add_trace(
+            go.Scatter(x=daily_counts.index, y=daily_counts['Job'],
+                       mode='lines+markers', name='Jobs',
+                       line=dict(color='#00d2ff', width=3),
+                       marker=dict(size=8)),
+            row=1, col=1
+        )
+    
+    # Cumulative sum
+    cumulative = daily_total.cumsum()
+    fig.add_trace(
+        go.Scatter(x=cumulative.index, y=cumulative.values,
+                   mode='lines+markers', name='Total Cumulative',
+                   line=dict(color='#28a745', width=4, dash='dash'),
+                   marker=dict(size=10)),
+        row=2, col=1
+    )
+    
+    fig.update_layout(height=600, showlegend=True,
+                      plot_bgcolor='rgba(0,0,0,0)',
+                      paper_bgcolor='rgba(0,0,0,0)')
+    fig.update_xaxes(title_text="Date", row=1, col=1)
+    fig.update_yaxes(title_text="Number Submitted", row=1, col=1)
+    fig.update_xaxes(title_text="Date", row=2, col=1)
+    fig.update_yaxes(title_text="Cumulative Total", row=2, col=1)
+    
+    st.plotly_chart(fig, use_container_width=True)
+    
+    # Summary stats
+    total_submitted = len(submission_data)
+    total_scholarships_submitted = len([s for s in scholarships if s.get('status') in ['submitted', 'accepted']])
+    total_jobs_submitted = len([j for j in jobs if j.get('status') in ['submitted', 'accepted']])
+    
+    col1, col2, col3 = st.columns(3)
+    col1.metric("📊 Total Submissions", total_submitted)
+    col2.metric("🎓 Scholarships Submitted", total_scholarships_submitted)
+    col3.metric("💼 Jobs Submitted", total_jobs_submitted)
+else:
+    st.info("No submissions yet. Start adding and submitting scholarships/jobs to see progress!")
+
+st.markdown("---")
+
 # ========== CALENDAR ==========
 
 st.header("📅 Calendar - Click Date to Filter")
@@ -423,7 +525,6 @@ current_date = get_ethiopia_time()
 current_month = current_date.month
 current_year = current_date.year
 
-# Month navigation
 col1, col2, col3 = st.columns([1, 2, 1])
 with col1:
     if st.button("◀️ Previous"):
@@ -442,16 +543,13 @@ with col3:
         else:
             current_month += 1
 
-# Get calendar
 cal = monthcalendar(current_year, current_month)
 
-# Day headers
 days_of_week = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 cols = st.columns(7)
 for i, day in enumerate(days_of_week):
     cols[i].markdown(f"<div style='text-align: center; font-weight: bold;'>{day}</div>", unsafe_allow_html=True)
 
-# Get dates with history
 history_dates = set([h.get('date', '') for h in data.get('history', [])])
 
 for week in cal:
@@ -477,13 +575,10 @@ for week in cal:
                     st.session_state.selected_date = date_str
                 st.rerun()
 
-# ========== SHOW SELECTED DATE OPPORTUNITIES ==========
-
 if st.session_state.selected_date:
     selected_date = st.session_state.selected_date
     st.subheader(f"📋 Opportunities for {selected_date}")
     
-    # Find items with this deadline
     matching_scholarships = [s for s in data.get('scholarships', []) if s.get('deadline') == selected_date]
     matching_jobs = [j for j in data.get('jobs', []) if j.get('deadline') == selected_date]
     
@@ -496,7 +591,6 @@ if st.session_state.selected_date:
                 📊 Status: {s.get('status', 'active')}
             </div>
             """, unsafe_allow_html=True)
-        
         for j in matching_jobs:
             st.markdown(f"""
             <div class="opportunity-card">
@@ -559,6 +653,9 @@ if st.session_state.get('master_word_export'):
     </div>
     """, unsafe_allow_html=True)
     st.info("📋 Select all text above and press Ctrl+C to copy")
+    if st.button("Clear Master CV Export"):
+        del st.session_state.master_word_export
+        st.rerun()
 
 st.markdown("---")
 
@@ -607,6 +704,9 @@ if st.session_state.get('minor_word_export'):
     </div>
     """, unsafe_allow_html=True)
     st.info("📋 Select all text above and press Ctrl+C to copy")
+    if st.button("Clear Minor CV Export"):
+        del st.session_state.minor_word_export
+        st.rerun()
 
 st.markdown("---")
 
@@ -697,7 +797,7 @@ with st.expander("➕ Add New Scholarship", expanded=False):
         st.session_state.s_saving = False
         st.rerun()
 
-# Display Scholarships with INDIVIDUAL WORD EXPORT
+# Display Scholarships
 scholarships = data.get('scholarships', [])
 if scholarships:
     st.subheader(f"📋 Your Scholarships ({len(scholarships)})")
@@ -739,10 +839,10 @@ if scholarships:
                 icons = {"active": "🟢 Active", "submitted": "📤 Submitted", "accepted": "✅ Accepted", "rejected": "❌ Rejected"}
                 st.write(icons.get(status, status))
             with col3:
-                # INDIVIDUAL WORD EXPORT BUTTON
+                # Individual Word Export
+                key = f"word_s_{idx}"
                 if st.button("📄 Word", key=f"s_word_{idx}", help="Export this scholarship to Word format"):
-                    word_content = generate_individual_word(s, "scholarship")
-                    st.session_state[f"word_s_{idx}"] = word_content
+                    st.session_state.word_exports[key] = generate_individual_word(s, "scholarship")
                     st.rerun()
                 if s.get('status') == 'active':
                     if st.button("📤 Submit", key=f"s_sub_{idx}"):
@@ -769,13 +869,16 @@ if scholarships:
                     st.rerun()
             
             # Show individual word export if exists
-            if st.session_state.get(f"word_s_{idx}"):
+            if key in st.session_state.word_exports:
                 st.markdown(f"""
                 <div class="word-export">
-                    {st.session_state[f"word_s_{idx}"]}
+                    {st.session_state.word_exports[key]}
                 </div>
                 """, unsafe_allow_html=True)
                 st.info("📋 Select all text above and press Ctrl+C to copy")
+                if st.button("Clear", key=f"clear_s_{idx}"):
+                    del st.session_state.word_exports[key]
+                    st.rerun()
             
             st.divider()
 
@@ -831,7 +934,7 @@ with st.expander("➕ Add New Job", expanded=False):
         st.session_state.j_saving = False
         st.rerun()
 
-# Display Jobs with INDIVIDUAL WORD EXPORT
+# Display Jobs
 jobs = data.get('jobs', [])
 if jobs:
     st.subheader(f"📋 Your Jobs ({len(jobs)})")
@@ -873,10 +976,9 @@ if jobs:
                 icons = {"active": "🟢 Active", "submitted": "📤 Submitted", "accepted": "✅ Accepted", "rejected": "❌ Rejected"}
                 st.write(icons.get(status, status))
             with col3:
-                # INDIVIDUAL WORD EXPORT BUTTON
+                key = f"word_j_{idx}"
                 if st.button("📄 Word", key=f"j_word_{idx}", help="Export this job to Word format"):
-                    word_content = generate_individual_word(j, "job")
-                    st.session_state[f"word_j_{idx}"] = word_content
+                    st.session_state.word_exports[key] = generate_individual_word(j, "job")
                     st.rerun()
                 if j.get('status') == 'active':
                     if st.button("📤 Submit", key=f"j_sub_{idx}"):
@@ -902,14 +1004,16 @@ if jobs:
                     save_data(data)
                     st.rerun()
             
-            # Show individual word export if exists
-            if st.session_state.get(f"word_j_{idx}"):
+            if key in st.session_state.word_exports:
                 st.markdown(f"""
                 <div class="word-export">
-                    {st.session_state[f"word_j_{idx}"]}
+                    {st.session_state.word_exports[key]}
                 </div>
                 """, unsafe_allow_html=True)
                 st.info("📋 Select all text above and press Ctrl+C to copy")
+                if st.button("Clear", key=f"clear_j_{idx}"):
+                    del st.session_state.word_exports[key]
+                    st.rerun()
             
             st.divider()
 
@@ -959,11 +1063,10 @@ if notes:
 
 st.markdown("---")
 
-# ========== HISTORY IN WORD FORMAT ==========
+# ========== HISTORY ==========
 
 st.header("📜 Complete History Log")
 
-# Full history export in WORD format
 if st.button("📄 Export Full History as Word"):
     eth_time = get_ethiopia_time()
     full_history = "📜 COMPLETE HISTORY LOG\n"
@@ -995,6 +1098,9 @@ if st.session_state.get('full_history_export'):
     </div>
     """, unsafe_allow_html=True)
     st.info("📋 Select all text above and press Ctrl+C to copy")
+    if st.button("Clear History Export"):
+        del st.session_state.full_history_export
+        st.rerun()
 
 if data.get('history'):
     st.subheader("📋 History Timeline")
