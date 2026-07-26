@@ -82,8 +82,8 @@
   ],
   "masterCV": {
     "title": "My Master CV",
-    "content": "gguiil,;,;lkpigftvgcg",
-    "lastUpdated": "2026-07-26 16:14:53"
+    "content": "love",
+    "lastUpdated": "2026-07-26 16:23:30"
   },
   "history": [
     {
@@ -161,6 +161,13 @@
       "action": "Submitted",
       "type": "Scholarship",
       "name": "pila",
+      "details": ""
+    },
+    {
+      "timestamp": "2026-07-26 16:23:30",
+      "action": "Updated CV",
+      "type": "CV",
+      "name": "My Master CV",
       "details": ""
     }
   ],
