@@ -6,6 +6,14 @@ from datetime import datetime, timedelta
 import time
 import pandas as pd
 from calendar import monthcalendar
+import os
+
+# ========== SET ETHIOPIA TIME ZONE ==========
+os.environ['TZ'] = 'Africa/Addis_Ababa'
+try:
+    time.tzset()
+except:
+    pass
 
 # ========== GET TOKEN FROM STREAMLIT SECRETS ==========
 
@@ -28,21 +36,35 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# ========== ETHIOPIA TIME ==========
+def get_ethiopia_time():
+    """Get current time in Ethiopia (Addis Ababa)"""
+    try:
+        # Try to use timezone
+        import pytz
+        ethiopia_tz = pytz.timezone('Africa/Addis_Ababa')
+        return datetime.now(ethiopia_tz)
+    except:
+        # Fallback: add 3 hours to UTC (Ethiopia is UTC+3)
+        return datetime.utcnow() + timedelta(hours=3)
+
 # ========== CUSTOM CSS ==========
 
 st.markdown("""
 <style>
     .welcome-box {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
         color: white;
         padding: 25px;
         border-radius: 20px;
         margin: 10px 0 20px 0;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        border: 1px solid #e94560;
     }
-    .welcome-title { font-size: 2.2em; font-weight: bold; }
-    .welcome-time { font-size: 1.5em; opacity: 0.9; }
+    .welcome-title { font-size: 2.2em; font-weight: bold; color: #e94560; }
+    .welcome-time { font-size: 2em; opacity: 0.9; font-weight: bold; }
     .welcome-date { font-size: 1.2em; opacity: 0.8; }
+    .welcome-location { font-size: 1em; opacity: 0.7; }
     
     .cv-master {
         background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
@@ -66,26 +88,8 @@ st.markdown("""
         border-radius: 10px;
         margin: 10px 0;
     }
-    .cv-section-title {
-        color: #e94560;
-        font-weight: bold;
-        font-size: 1.2em;
-    }
-    .cv-minor-title {
-        color: #00d2ff;
-        font-weight: bold;
-        font-size: 1.2em;
-    }
-    .cv-item {
-        padding: 8px 12px;
-        margin: 5px 0;
-        background: rgba(255,255,255,0.03);
-        border-radius: 8px;
-        border-left: 3px solid #e94560;
-    }
-    .cv-item-minor {
-        border-left: 3px solid #00d2ff;
-    }
+    .cv-section-title { color: #e94560; font-weight: bold; font-size: 1.2em; }
+    .cv-minor-title { color: #00d2ff; font-weight: bold; font-size: 1.2em; }
     
     .ss-sort { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 15px; margin: 5px 0; text-align: center; }
     .ss-set { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 15px; border-radius: 15px; margin: 5px 0; text-align: center; }
@@ -110,6 +114,7 @@ st.markdown("""
         margin: 5px 0;
         border-left: 5px solid #007bff;
         transition: all 0.3s;
+        cursor: pointer;
     }
     .history-item:hover { background: #e9ecef; transform: translateX(5px); }
     
@@ -129,8 +134,8 @@ st.markdown("""
     .download-btn {
         background: #28a745;
         color: white;
-        padding: 10px 20px;
-        border-radius: 10px;
+        padding: 8px 16px;
+        border-radius: 8px;
         border: none;
         font-weight: bold;
         cursor: pointer;
@@ -171,21 +176,45 @@ st.markdown("""
     .calendar-day.selected { background: #007bff; color: white; border-color: #007bff; }
     .calendar-day.has-items { background: #28a745; color: white; }
     .calendar-day.today { border: 3px solid #007bff; font-weight: bold; }
+    .calendar-header {
+        background: #007bff;
+        color: white;
+        padding: 10px;
+        border-radius: 10px 10px 0 0;
+        text-align: center;
+        font-weight: bold;
+    }
+    
+    .opportunity-card {
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        margin: 10px 0;
+        border-left: 4px solid #e94560;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .small-btn {
+        padding: 4px 12px;
+        font-size: 0.8em;
+        border-radius: 5px;
+        margin: 2px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# ========== WELCOME SECTION ==========
+# ========== WELCOME SECTION WITH ETHIOPIA TIME ==========
 
-current_time = datetime.now()
+ethiopia_time = get_ethiopia_time()
 day_names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-day_name = day_names[current_time.weekday()]
+day_name = day_names[ethiopia_time.weekday()]
 
 st.markdown(f"""
 <div class="welcome-box">
     <div class="welcome-title">🦸 Welcome, Superhero Dagim!</div>
-    <div class="welcome-time">🕐 {current_time.strftime('%I:%M:%S %p')}</div>
-    <div class="welcome-date">📅 {current_time.strftime('%B %d, %Y')} - {day_name}</div>
-    <div style="margin-top: 5px; opacity: 0.7; font-size: 0.9em;">📍 Time Zone: {time.tzname[0]}</div>
+    <div class="welcome-time">🕐 {ethiopia_time.strftime('%I:%M:%S %p')}</div>
+    <div class="welcome-date">📅 {ethiopia_time.strftime('%B %d, %Y')} - {day_name}</div>
+    <div class="welcome-location">📍 Addis Ababa, Ethiopia (UTC+3)</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -205,41 +234,27 @@ def get_data():
             if 'scholarships' not in data: data['scholarships'] = []
             if 'jobs' not in data: data['jobs'] = []
             if 'masterCV' not in data: 
-                data['masterCV'] = {
-                    "title": "ZEDAGIM TESFAYE TANTU - Master CV",
-                    "content": "",
-                    "lastUpdated": "",
-                    "sections": []
-                }
+                data['masterCV'] = {"title": "ZEDAGIM TESFAYE TANTU - Master CV", "content": "", "lastUpdated": "", "sections": []}
             if 'minorCV' not in data:
-                data['minorCV'] = {
-                    "title": "ZEDAGIM TESFAYE TANTU - Minor CV",
-                    "content": "",
-                    "lastUpdated": "",
-                    "sections": []
-                }
+                data['minorCV'] = {"title": "ZEDAGIM TESFAYE TANTU - Minor CV", "content": "", "lastUpdated": "", "sections": []}
             if 'history' not in data: data['history'] = []
             if 'notes' not in data: data['notes'] = []
             return data
         else:
             default_data = {
-                "scholarships": [], 
-                "jobs": [], 
+                "scholarships": [], "jobs": [], 
                 "masterCV": {"title": "ZEDAGIM TESFAYE TANTU - Master CV", "content": "", "lastUpdated": "", "sections": []},
                 "minorCV": {"title": "ZEDAGIM TESFAYE TANTU - Minor CV", "content": "", "lastUpdated": "", "sections": []},
-                "history": [], 
-                "notes": []
+                "history": [], "notes": []
             }
             save_data(default_data)
             return default_data
     except:
         return {
-            "scholarships": [], 
-            "jobs": [], 
+            "scholarships": [], "jobs": [], 
             "masterCV": {"title": "ZEDAGIM TESFAYE TANTU - Master CV", "content": "", "lastUpdated": "", "sections": []},
             "minorCV": {"title": "ZEDAGIM TESFAYE TANTU - Minor CV", "content": "", "lastUpdated": "", "sections": []},
-            "history": [], 
-            "notes": []
+            "history": [], "notes": []
         }
 
 def save_data(data):
@@ -266,9 +281,10 @@ def save_data(data):
 
 def add_history(data, action, item_type, item_name, details=""):
     if 'history' not in data: data['history'] = []
+    eth_time = get_ethiopia_time()
     data['history'].append({
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "date": datetime.now().strftime("%Y-%m-%d"),
+        "timestamp": eth_time.strftime("%Y-%m-%d %H:%M:%S"),
+        "date": eth_time.strftime("%Y-%m-%d"),
         "action": action,
         "type": item_type,
         "name": item_name,
@@ -276,32 +292,35 @@ def add_history(data, action, item_type, item_name, details=""):
     })
     return data
 
-def generate_word_cv(data, cv_type="master"):
-    """Generate Word format CV"""
-    cv = data.get(cv_type, {})
+def generate_individual_word(item, item_type):
+    """Generate Word document for a single item"""
+    word = "=" * 70 + "\n"
+    word += f"📚 {item_type.upper()} DETAILS\n"
+    word += "=" * 70 + "\n\n"
     
-    word = "=" * 80 + "\n"
-    word += f"📄 {cv.get('title', 'CV').upper()}\n"
-    word += "=" * 80 + "\n"
-    word += f"🕐 Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
-    word += f"📅 Last Updated: {cv.get('lastUpdated', 'Never')}\n"
-    word += "=" * 80 + "\n\n"
+    if item_type == "scholarship":
+        word += f"🎓 Name: {item.get('name', 'N/A')}\n"
+        word += f"🏛️ University: {item.get('uni', 'N/A')}\n"
+        word += f"📅 Deadline: {item.get('deadline', 'N/A')}\n"
+        word += f"🌍 Country: {item.get('country', 'N/A')}\n"
+        word += f"📊 Status: {item.get('status', 'active')}\n"
+        word += f"📝 Notes: {item.get('notes', 'N/A')}\n"
+        word += f"🔗 Link: {item.get('link', 'N/A')}\n"
+        word += f"🕐 Added: {item.get('createdAt', 'N/A')}\n"
+    else:
+        word += f"💼 Title: {item.get('title', 'N/A')}\n"
+        word += f"🏢 Company: {item.get('company', 'N/A')}\n"
+        word += f"📅 Deadline: {item.get('deadline', 'N/A')}\n"
+        word += f"📍 Location: {item.get('location', 'N/A')}\n"
+        word += f"📊 Status: {item.get('status', 'active')}\n"
+        word += f"📝 Notes: {item.get('notes', 'N/A')}\n"
+        word += f"🔗 Link: {item.get('link', 'N/A')}\n"
+        word += f"🕐 Added: {item.get('createdAt', 'N/A')}\n"
     
-    # Content
-    if cv.get('content'):
-        word += cv.get('content') + "\n\n"
-    
-    # Sections
-    if cv.get('sections'):
-        for section in cv.get('sections', []):
-            word += f"\n{'=' * 60}\n"
-            word += f"📌 {section.get('title', 'Section')}\n"
-            word += f"{'=' * 60}\n"
-            word += section.get('content', '') + "\n"
-    
-    word += "\n" + "=" * 80 + "\n"
-    word += "📊 END OF CV\n"
-    word += "=" * 80 + "\n"
+    eth_time = get_ethiopia_time()
+    word += "\n" + "=" * 70 + "\n"
+    word += f"📅 Generated: {eth_time.strftime('%Y-%m-%d %H:%M:%S')} (Addis Ababa, Ethiopia)\n"
+    word += "=" * 70 + "\n"
     
     return word
 
@@ -332,6 +351,7 @@ with st.sidebar:
     st.markdown("---")
     st.caption("📦 Data saved on GitHub")
     st.caption(f"🔗 github.com/{USER}/{REPO}")
+    st.caption("🇪🇹 Ethiopia Time (UTC+3)")
 
 # ========== 5S DASHBOARD ==========
 
@@ -395,6 +415,105 @@ with col5:
 
 st.markdown("---")
 
+# ========== CALENDAR ==========
+
+st.header("📅 Calendar - Click Date to Filter")
+
+current_date = get_ethiopia_time()
+current_month = current_date.month
+current_year = current_date.year
+
+# Month navigation
+col1, col2, col3 = st.columns([1, 2, 1])
+with col1:
+    if st.button("◀️ Previous"):
+        if current_month == 1:
+            current_month = 12
+            current_year -= 1
+        else:
+            current_month -= 1
+with col2:
+    st.markdown(f"<h3 style='text-align: center;'>{datetime(current_year, current_month, 1).strftime('%B %Y')}</h3>", unsafe_allow_html=True)
+with col3:
+    if st.button("Next ▶️"):
+        if current_month == 12:
+            current_month = 1
+            current_year += 1
+        else:
+            current_month += 1
+
+# Get calendar
+cal = monthcalendar(current_year, current_month)
+
+# Day headers
+days_of_week = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+cols = st.columns(7)
+for i, day in enumerate(days_of_week):
+    cols[i].markdown(f"<div style='text-align: center; font-weight: bold;'>{day}</div>", unsafe_allow_html=True)
+
+# Get dates with history
+history_dates = set([h.get('date', '') for h in data.get('history', [])])
+
+for week in cal:
+    cols = st.columns(7)
+    for i, day in enumerate(week):
+        if day == 0:
+            cols[i].write("")
+        else:
+            date_str = f"{current_year}-{current_month:02d}-{day:02d}"
+            is_today = date_str == current_date.strftime("%Y-%m-%d")
+            has_items = date_str in history_dates
+            is_selected = st.session_state.selected_date == date_str
+            
+            style = "calendar-day"
+            if is_today: style += " today"
+            if has_items: style += " has-items"
+            if is_selected: style += " selected"
+            
+            if cols[i].button(str(day), key=f"cal_{date_str}", use_container_width=True):
+                if st.session_state.selected_date == date_str:
+                    st.session_state.selected_date = None
+                else:
+                    st.session_state.selected_date = date_str
+                st.rerun()
+
+# ========== SHOW SELECTED DATE OPPORTUNITIES ==========
+
+if st.session_state.selected_date:
+    selected_date = st.session_state.selected_date
+    st.subheader(f"📋 Opportunities for {selected_date}")
+    
+    # Find items with this deadline
+    matching_scholarships = [s for s in data.get('scholarships', []) if s.get('deadline') == selected_date]
+    matching_jobs = [j for j in data.get('jobs', []) if j.get('deadline') == selected_date]
+    
+    if matching_scholarships or matching_jobs:
+        for s in matching_scholarships:
+            st.markdown(f"""
+            <div class="opportunity-card">
+                <b>🎓 {s.get('name', '')}</b><br>
+                🏛️ {s.get('uni', 'N/A')} | 🌍 {s.get('country', 'N/A')}<br>
+                📊 Status: {s.get('status', 'active')}
+            </div>
+            """, unsafe_allow_html=True)
+        
+        for j in matching_jobs:
+            st.markdown(f"""
+            <div class="opportunity-card">
+                <b>💼 {j.get('title', '')}</b><br>
+                🏢 {j.get('company', 'N/A')} | 📍 {j.get('location', 'N/A')}<br>
+                📊 Status: {j.get('status', 'active')}
+            </div>
+            """, unsafe_allow_html=True)
+    else:
+        st.info("No opportunities with this deadline")
+    
+    if st.button("Clear Filter"):
+        st.session_state.selected_date = None
+        st.rerun()
+    
+    st.markdown("---")
+
 # ========== MASTER CV ==========
 
 st.header("📄 Master CV - Permanent")
@@ -410,7 +529,7 @@ with st.expander("✏️ Edit Master CV", expanded=False):
         if st.button("💾 Save Master CV", type="primary"):
             data['masterCV']['title'] = cv_title
             data['masterCV']['content'] = cv_content
-            data['masterCV']['lastUpdated'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            data['masterCV']['lastUpdated'] = get_ethiopia_time().strftime("%Y-%m-%d %H:%M:%S")
             data = add_history(data, "Updated Master CV", "CV", cv_title)
             if save_data(data):
                 st.success("✅ Master CV Saved Permanently!")
@@ -418,12 +537,11 @@ with st.expander("✏️ Edit Master CV", expanded=False):
                 st.rerun()
     
     with col2:
-        if st.button("📥 Download Master CV as Word", type="secondary"):
+        if st.button("📥 Download Master CV", type="secondary"):
             word_content = generate_word_cv(data, "masterCV")
             st.session_state.master_word_export = word_content
             st.rerun()
 
-# Show Master CV
 if master_cv.get('content'):
     st.markdown(f"""
     <div class="cv-master">
@@ -434,7 +552,7 @@ if master_cv.get('content'):
     """, unsafe_allow_html=True)
 
 if st.session_state.get('master_word_export'):
-    st.subheader("📋 Master CV - Word Format (Copy & Paste)")
+    st.subheader("📋 Master CV - Word Format")
     st.markdown(f"""
     <div class="word-export">
         {st.session_state.master_word_export}
@@ -459,7 +577,7 @@ with st.expander("✏️ Edit Minor CV", expanded=False):
         if st.button("💾 Save Minor CV", type="primary"):
             data['minorCV']['title'] = minor_title
             data['minorCV']['content'] = minor_content
-            data['minorCV']['lastUpdated'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            data['minorCV']['lastUpdated'] = get_ethiopia_time().strftime("%Y-%m-%d %H:%M:%S")
             data = add_history(data, "Updated Minor CV", "CV", minor_title)
             if save_data(data):
                 st.success("✅ Minor CV Saved Permanently!")
@@ -467,12 +585,11 @@ with st.expander("✏️ Edit Minor CV", expanded=False):
                 st.rerun()
     
     with col2:
-        if st.button("📥 Download Minor CV as Word", type="secondary"):
+        if st.button("📥 Download Minor CV", type="secondary"):
             word_content = generate_word_cv(data, "minorCV")
             st.session_state.minor_word_export = word_content
             st.rerun()
 
-# Show Minor CV
 if minor_cv.get('content'):
     st.markdown(f"""
     <div class="cv-minor">
@@ -483,7 +600,7 @@ if minor_cv.get('content'):
     """, unsafe_allow_html=True)
 
 if st.session_state.get('minor_word_export'):
-    st.subheader("📋 Minor CV - Word Format (Copy & Paste)")
+    st.subheader("📋 Minor CV - Word Format")
     st.markdown(f"""
     <div class="word-export">
         {st.session_state.minor_word_export}
@@ -497,9 +614,9 @@ st.markdown("---")
 
 st.subheader("➕ Quick Add to Both CVs")
 
-with st.expander("Add Experience/Section to Both CVs", expanded=False):
+with st.expander("Add Experience/Section to CVs", expanded=False):
     section_title = st.text_input("Section Title", placeholder="e.g., Maritime GeoAI System")
-    section_content = st.text_area("Section Content", height=150, placeholder="Describe your achievement or experience...")
+    section_content = st.text_area("Section Content", height=150, placeholder="Describe your achievement...")
     cv_choice = st.radio("Add to:", ["Both CVs", "Master CV Only", "Minor CV Only"])
     
     if st.button("➕ Add Section", type="primary"):
@@ -507,63 +624,28 @@ with st.expander("Add Experience/Section to Both CVs", expanded=False):
             new_section = {
                 "title": section_title,
                 "content": section_content,
-                "added": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                "added": get_ethiopia_time().strftime("%Y-%m-%d %H:%M:%S")
             }
             
             if cv_choice in ["Both CVs", "Master CV Only"]:
                 if 'sections' not in data['masterCV']:
                     data['masterCV']['sections'] = []
                 data['masterCV']['sections'].append(new_section)
-                data['masterCV']['lastUpdated'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                data['masterCV']['lastUpdated'] = get_ethiopia_time().strftime("%Y-%m-%d %H:%M:%S")
             
             if cv_choice in ["Both CVs", "Minor CV Only"]:
                 if 'sections' not in data['minorCV']:
                     data['minorCV']['sections'] = []
                 data['minorCV']['sections'].append(new_section)
-                data['minorCV']['lastUpdated'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                data['minorCV']['lastUpdated'] = get_ethiopia_time().strftime("%Y-%m-%d %H:%M:%S")
             
             data = add_history(data, "Added CV Section", "CV", section_title)
             if save_data(data):
-                st.success(f"✅ Section '{section_title}' Added Permanently!")
+                st.success(f"✅ Section '{section_title}' Added!")
                 time.sleep(0.5)
                 st.rerun()
         else:
             st.error("❌ Title and Content are required!")
-
-# ========== SHOW CV SECTIONS ==========
-
-if data['masterCV'].get('sections') or data['minorCV'].get('sections'):
-    st.subheader("📋 CV Sections")
-    
-    tab1, tab2 = st.tabs(["Master CV Sections", "Minor CV Sections"])
-    
-    with tab1:
-        if data['masterCV'].get('sections'):
-            for section in data['masterCV']['sections']:
-                st.markdown(f"""
-                <div class="cv-section">
-                    <div class="cv-section-title">📌 {section.get('title', '')}</div>
-                    <div style="margin-top: 5px; white-space: pre-wrap;">{section.get('content', '')}</div>
-                    <div style="opacity: 0.5; font-size: 0.8em;">Added: {section.get('added', '')}</div>
-                </div>
-                """, unsafe_allow_html=True)
-        else:
-            st.info("No sections in Master CV yet")
-    
-    with tab2:
-        if data['minorCV'].get('sections'):
-            for section in data['minorCV']['sections']:
-                st.markdown(f"""
-                <div class="cv-section">
-                    <div class="cv-minor-title">📌 {section.get('title', '')}</div>
-                    <div style="margin-top: 5px; white-space: pre-wrap;">{section.get('content', '')}</div>
-                    <div style="opacity: 0.5; font-size: 0.8em;">Added: {section.get('added', '')}</div>
-                </div>
-                """, unsafe_allow_html=True)
-        else:
-            st.info("No sections in Minor CV yet")
-
-st.markdown("---")
 
 # ========== SCHOLARSHIPS ==========
 
@@ -584,7 +666,6 @@ with st.expander("➕ Add New Scholarship", expanded=False):
         
         if st.button("💾 Save Scholarship", type="primary", key="save_s"):
             if name and deadline:
-                # Check for duplicates
                 existing = [s for s in data.get('scholarships', []) if s.get('name', '').lower() == name.lower()]
                 if existing:
                     st.error(f"❌ DUPLICATE! '{name}' already exists!")
@@ -599,7 +680,7 @@ with st.expander("➕ Add New Scholarship", expanded=False):
                         "notes": notes or "",
                         "link": link or "",
                         "status": "active",
-                        "createdAt": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        "createdAt": get_ethiopia_time().strftime("%Y-%m-%d %H:%M:%S")
                     }
                     data['scholarships'].append(new_s)
                     data = add_history(data, "Added", "Scholarship", name)
@@ -616,7 +697,7 @@ with st.expander("➕ Add New Scholarship", expanded=False):
         st.session_state.s_saving = False
         st.rerun()
 
-# Display Scholarships
+# Display Scholarships with INDIVIDUAL WORD EXPORT
 scholarships = data.get('scholarships', [])
 if scholarships:
     st.subheader(f"📋 Your Scholarships ({len(scholarships)})")
@@ -645,12 +726,12 @@ if scholarships:
             status_label = "⏰ EXPIRED"
         
         with st.container():
-            col1, col2, col3 = st.columns([3, 2, 1])
+            col1, col2, col3, col4 = st.columns([2.5, 1.5, 1, 1])
             with col1:
                 st.markdown(f"**{s.get('name', '')}**")
                 if s.get('uni'): st.caption(f"🏛️ {s.get('uni')}")
                 if s.get('country'): st.caption(f"🌍 {s.get('country')}")
-                if s.get('notes'): st.caption(f"📝 {s.get('notes')[:100]}")
+                if s.get('notes'): st.caption(f"📝 {s.get('notes')[:80]}")
             with col2:
                 st.write(f"📅 {s.get('deadline', 'No deadline')}")
                 st.markdown(f"<span class='{status_class}'>{status_label}</span>", unsafe_allow_html=True)
@@ -658,13 +739,19 @@ if scholarships:
                 icons = {"active": "🟢 Active", "submitted": "📤 Submitted", "accepted": "✅ Accepted", "rejected": "❌ Rejected"}
                 st.write(icons.get(status, status))
             with col3:
+                # INDIVIDUAL WORD EXPORT BUTTON
+                if st.button("📄 Word", key=f"s_word_{idx}", help="Export this scholarship to Word format"):
+                    word_content = generate_individual_word(s, "scholarship")
+                    st.session_state[f"word_s_{idx}"] = word_content
+                    st.rerun()
                 if s.get('status') == 'active':
                     if st.button("📤 Submit", key=f"s_sub_{idx}"):
                         s['status'] = 'submitted'
                         data = add_history(data, "Submitted", "Scholarship", s.get('name'))
                         save_data(data)
                         st.rerun()
-                elif s.get('status') == 'submitted':
+            with col4:
+                if s.get('status') == 'submitted':
                     if st.button("✅ Accept", key=f"s_acc_{idx}"):
                         s['status'] = 'accepted'
                         data = add_history(data, "Accepted", "Scholarship", s.get('name'))
@@ -680,6 +767,16 @@ if scholarships:
                     data = add_history(data, "Deleted", "Scholarship", s.get('name'))
                     save_data(data)
                     st.rerun()
+            
+            # Show individual word export if exists
+            if st.session_state.get(f"word_s_{idx}"):
+                st.markdown(f"""
+                <div class="word-export">
+                    {st.session_state[f"word_s_{idx}"]}
+                </div>
+                """, unsafe_allow_html=True)
+                st.info("📋 Select all text above and press Ctrl+C to copy")
+            
             st.divider()
 
 st.markdown("---")
@@ -717,7 +814,7 @@ with st.expander("➕ Add New Job", expanded=False):
                         "notes": notes or "",
                         "link": link or "",
                         "status": "active",
-                        "createdAt": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        "createdAt": get_ethiopia_time().strftime("%Y-%m-%d %H:%M:%S")
                     }
                     data['jobs'].append(new_j)
                     data = add_history(data, "Added", "Job", title)
@@ -734,7 +831,7 @@ with st.expander("➕ Add New Job", expanded=False):
         st.session_state.j_saving = False
         st.rerun()
 
-# Display Jobs
+# Display Jobs with INDIVIDUAL WORD EXPORT
 jobs = data.get('jobs', [])
 if jobs:
     st.subheader(f"📋 Your Jobs ({len(jobs)})")
@@ -763,12 +860,12 @@ if jobs:
             status_label = "⏰ EXPIRED"
         
         with st.container():
-            col1, col2, col3 = st.columns([3, 2, 1])
+            col1, col2, col3, col4 = st.columns([2.5, 1.5, 1, 1])
             with col1:
                 st.markdown(f"**{j.get('title', '')}**")
                 if j.get('company'): st.caption(f"🏢 {j.get('company')}")
                 if j.get('location'): st.caption(f"📍 {j.get('location')}")
-                if j.get('notes'): st.caption(f"📝 {j.get('notes')[:100]}")
+                if j.get('notes'): st.caption(f"📝 {j.get('notes')[:80]}")
             with col2:
                 st.write(f"📅 {j.get('deadline', 'No deadline')}")
                 st.markdown(f"<span class='{status_class}'>{status_label}</span>", unsafe_allow_html=True)
@@ -776,13 +873,19 @@ if jobs:
                 icons = {"active": "🟢 Active", "submitted": "📤 Submitted", "accepted": "✅ Accepted", "rejected": "❌ Rejected"}
                 st.write(icons.get(status, status))
             with col3:
+                # INDIVIDUAL WORD EXPORT BUTTON
+                if st.button("📄 Word", key=f"j_word_{idx}", help="Export this job to Word format"):
+                    word_content = generate_individual_word(j, "job")
+                    st.session_state[f"word_j_{idx}"] = word_content
+                    st.rerun()
                 if j.get('status') == 'active':
                     if st.button("📤 Submit", key=f"j_sub_{idx}"):
                         j['status'] = 'submitted'
                         data = add_history(data, "Submitted", "Job", j.get('title'))
                         save_data(data)
                         st.rerun()
-                elif j.get('status') == 'submitted':
+            with col4:
+                if j.get('status') == 'submitted':
                     if st.button("✅ Accept", key=f"j_acc_{idx}"):
                         j['status'] = 'accepted'
                         data = add_history(data, "Accepted", "Job", j.get('title'))
@@ -798,6 +901,16 @@ if jobs:
                     data = add_history(data, "Deleted", "Job", j.get('title'))
                     save_data(data)
                     st.rerun()
+            
+            # Show individual word export if exists
+            if st.session_state.get(f"word_j_{idx}"):
+                st.markdown(f"""
+                <div class="word-export">
+                    {st.session_state[f"word_j_{idx}"]}
+                </div>
+                """, unsafe_allow_html=True)
+                st.info("📋 Select all text above and press Ctrl+C to copy")
+            
             st.divider()
 
 st.markdown("---")
@@ -815,7 +928,7 @@ with st.expander("➕ Add New Note", expanded=False):
             data['notes'].append({
                 "id": str(datetime.now().timestamp()),
                 "content": note_content,
-                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                "timestamp": get_ethiopia_time().strftime("%Y-%m-%d %H:%M:%S")
             })
             data = add_history(data, "Added Note", "Note", note_content[:30] + "...")
             if save_data(data):
@@ -846,28 +959,42 @@ if notes:
 
 st.markdown("---")
 
-# ========== HISTORY ==========
+# ========== HISTORY IN WORD FORMAT ==========
 
 st.header("📜 Complete History Log")
 
-if st.button("📄 Export All History as Word"):
-    full_history = "📜 COMPLETE HISTORY\n"
-    full_history += "=" * 60 + "\n"
-    for h in reversed(data.get('history', [])):
-        full_history += f"{h.get('timestamp', '')} - {h.get('action', '')}: {h.get('name', '')}\n"
-        if h.get('details'): full_history += f"  Details: {h.get('details')}\n"
-    full_history += "=" * 60 + "\n"
-    full_history += f"Total: {len(data.get('history', []))} actions"
+# Full history export in WORD format
+if st.button("📄 Export Full History as Word"):
+    eth_time = get_ethiopia_time()
+    full_history = "📜 COMPLETE HISTORY LOG\n"
+    full_history += "=" * 70 + "\n"
+    full_history += f"📅 Generated: {eth_time.strftime('%Y-%m-%d %H:%M:%S')} (Addis Ababa, Ethiopia)\n"
+    full_history += "=" * 70 + "\n\n"
+    
+    if data.get('history'):
+        for h in reversed(data['history']):
+            full_history += f"🕐 {h.get('timestamp', '')}\n"
+            full_history += f"📌 {h.get('action', '')}: {h.get('name', '')}\n"
+            if h.get('details'): full_history += f"📝 {h.get('details')}\n"
+            full_history += "-" * 40 + "\n"
+    else:
+        full_history += "No history yet.\n"
+    
+    full_history += "\n" + "=" * 70 + "\n"
+    full_history += f"Total Actions: {len(data.get('history', []))}\n"
+    full_history += "=" * 70 + "\n"
+    
     st.session_state.full_history_export = full_history
     st.rerun()
 
 if st.session_state.get('full_history_export'):
+    st.subheader("📋 Full History - Word Format")
     st.markdown(f"""
     <div class="word-export">
         {st.session_state.full_history_export}
     </div>
     """, unsafe_allow_html=True)
-    st.info("📋 Select text above and press Ctrl+C to copy")
+    st.info("📋 Select all text above and press Ctrl+C to copy")
 
 if data.get('history'):
     st.subheader("📋 History Timeline")
@@ -894,4 +1021,4 @@ with col2:
 with col3:
     st.caption(f"🔗 github.com/{USER}/{REPO}")
 
-st.caption("✅ Zero-duplication | 🔒 Button lock | 📊 5S Dashboard | 💾 Permanent storage")
+st.caption("✅ Zero-duplication | 🔒 Button lock | 📊 Live Dashboard | 💾 Permanent storage | 🇪🇹 Ethiopia Time")
