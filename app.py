@@ -23,7 +23,7 @@ FILE = "data.json"
 
 # Check if token works
 if not TOKEN:
-    st.error("❌ OOPS! No token found! Add GITHUB_TOKEN to secrets!")
+    st.error("❌ OOPS! No token found! Add TOKEN to secrets!")  # ← FIXED!
     st.stop()
 
 st.set_page_config(page_title="📚 Dagi Tracker", layout="wide")
