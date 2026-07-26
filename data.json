@@ -109,7 +109,7 @@
       "location": "",
       "notes": "tuu",
       "link": "",
-      "status": "active",
+      "status": "submitted",
       "createdAt": "2026-07-26 17:19:18"
     }
   ],
@@ -309,6 +309,14 @@
       "timestamp": "2026-07-26 17:19:18",
       "date": "2026-07-26",
       "action": "Added",
+      "type": "Job",
+      "name": "jgfy",
+      "details": ""
+    },
+    {
+      "timestamp": "2026-07-26 17:19:29",
+      "date": "2026-07-26",
+      "action": "Submitted",
       "type": "Job",
       "name": "jgfy",
       "details": ""
