@@ -30,7 +30,7 @@
       "country": "",
       "notes": "g\n\nd\ng\nd\n\ndf\n\ndf\nd\ndf",
       "link": "",
-      "status": "active",
+      "status": "submitted",
       "createdAt": "2026-07-26 16:15:49"
     }
   ],
@@ -152,6 +152,13 @@
     {
       "timestamp": "2026-07-26 16:15:49",
       "action": "Added",
+      "type": "Scholarship",
+      "name": "pila",
+      "details": ""
+    },
+    {
+      "timestamp": "2026-07-26 16:16:03",
+      "action": "Submitted",
       "type": "Scholarship",
       "name": "pila",
       "details": ""
