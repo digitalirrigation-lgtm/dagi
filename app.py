@@ -9,7 +9,7 @@ from datetime import datetime
 
 # For GitHub Cloud
 try:
-    TOKEN = st.secrets["GITHUB_TOKEN"]
+    TOKEN = st.secrets["TOKEN"]
 except:
     # For local testing (if you have .env file)
     from dotenv import load_dotenv
