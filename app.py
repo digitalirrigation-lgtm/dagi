@@ -5,6 +5,7 @@ import base64
 from datetime import datetime, timedelta
 import time
 import pandas as pd
+from calendar import monthcalendar, Calendar
 
 # ========== GET TOKEN FROM STREAMLIT SECRETS ==========
 
@@ -21,6 +22,8 @@ if not TOKEN:
     st.error("❌ No token found! Add TOKEN to Streamlit secrets.")
     st.stop()
 
+# ========== PAGE CONFIG ==========
+
 st.set_page_config(
     page_title="📚 Dagi Tracker Pro", 
     layout="wide",
@@ -31,12 +34,27 @@ st.set_page_config(
 
 st.markdown("""
 <style>
+    /* Welcome Section */
+    .welcome-box {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 25px;
+        border-radius: 20px;
+        margin: 10px 0 20px 0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .welcome-title { font-size: 2.2em; font-weight: bold; }
+    .welcome-time { font-size: 1.5em; opacity: 0.9; }
+    .welcome-date { font-size: 1.2em; opacity: 0.8; }
+    
+    /* 5S Dashboard */
     .ss-sort { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 15px; margin: 5px 0; text-align: center; }
     .ss-set { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 15px; border-radius: 15px; margin: 5px 0; text-align: center; }
     .ss-shine { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 15px; border-radius: 15px; margin: 5px 0; text-align: center; }
     .ss-standardize { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 15px; border-radius: 15px; margin: 5px 0; text-align: center; }
     .ss-sustain { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; padding: 15px; border-radius: 15px; margin: 5px 0; text-align: center; }
     
+    /* Deadline Colors */
     .deadline-red { background: #dc3545; color: white; padding: 5px 15px; border-radius: 25px; font-weight: bold; display: inline-block; animation: blink 1s infinite; }
     .deadline-yellow { background: #ffc107; color: black; padding: 5px 15px; border-radius: 25px; font-weight: bold; display: inline-block; }
     .deadline-green { background: #28a745; color: white; padding: 5px 15px; border-radius: 25px; font-weight: bold; display: inline-block; }
@@ -47,6 +65,7 @@ st.markdown("""
         100% { opacity: 1; }
     }
     
+    /* History Items */
     .history-item { 
         padding: 12px; 
         background: #f8f9fa; 
@@ -57,6 +76,7 @@ st.markdown("""
     }
     .history-item:hover { background: #e9ecef; transform: translateX(5px); }
     
+    /* Word Export Box */
     .word-export {
         background: white;
         padding: 25px;
@@ -64,12 +84,38 @@ st.markdown("""
         border: 3px solid #007bff;
         white-space: pre-wrap;
         font-family: 'Arial', sans-serif;
-        min-height: 300px;
-        max-height: 600px;
+        min-height: 150px;
+        max-height: 400px;
         overflow-y: auto;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
     
+    /* Calendar Styling */
+    .calendar-day {
+        padding: 10px;
+        margin: 2px;
+        border-radius: 10px;
+        text-align: center;
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+    .calendar-day:hover { background: #007bff; color: white; transform: scale(1.05); }
+    .calendar-day.selected { background: #007bff; color: white; border-color: #007bff; }
+    .calendar-day.has-items { background: #28a745; color: white; }
+    .calendar-day.today { border: 3px solid #007bff; font-weight: bold; }
+    
+    .calendar-header {
+        background: #007bff;
+        color: white;
+        padding: 10px;
+        border-radius: 10px 10px 0 0;
+        text-align: center;
+        font-weight: bold;
+    }
+    
+    /* Note Cards */
     .note-card {
         background: #fff3cd;
         padding: 15px;
@@ -78,52 +124,46 @@ st.markdown("""
         margin: 10px 0;
     }
     
-    .button-locked {
-        opacity: 0.5;
-        pointer-events: none;
-    }
-    
-    .stButton button {
-        width: 100%;
-        border-radius: 10px;
+    /* Individual Export Button */
+    .export-btn {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
         font-weight: bold;
-        transition: all 0.3s;
     }
-    .stButton button:hover {
-        transform: scale(1.02);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
+    .export-btn:hover { background: #218838; }
     
-    .success-box {
-        padding: 12px;
-        background: #d4edda;
-        border-radius: 10px;
-        border-left: 5px solid #28a745;
-        margin: 10px 0;
-    }
-    .danger-box {
-        padding: 12px;
-        background: #f8d7da;
-        border-radius: 10px;
-        border-left: 5px solid #dc3545;
-        margin: 10px 0;
-    }
-    
+    /* Stats Cards */
     .stats-card {
         background: white;
-        padding: 20px;
+        padding: 15px;
         border-radius: 15px;
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         text-align: center;
         border: 2px solid #e9ecef;
     }
-    .stats-number { font-size: 2.5em; font-weight: bold; color: #007bff; }
+    .stats-number { font-size: 2em; font-weight: bold; color: #007bff; }
     .stats-label { color: #6c757d; font-size: 0.9em; }
 </style>
 """, unsafe_allow_html=True)
 
-st.title("📚 My Scholarship & Job Tracker Pro")
-st.caption("🔒 Zero-Duplication | 💾 Permanent GitHub Storage | 📊 Live Dashboard")
+# ========== WELCOME SECTION ==========
+
+current_time = datetime.now()
+day_names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+day_name = day_names[current_time.weekday()]
+
+st.markdown(f"""
+<div class="welcome-box">
+    <div class="welcome-title">👋 Welcome, Dagim!</div>
+    <div class="welcome-time">🕐 {current_time.strftime('%I:%M:%S %p')}</div>
+    <div class="welcome-date">📅 {current_time.strftime('%B %d, %Y')} - {day_name}</div>
+    <div style="margin-top: 5px; opacity: 0.7; font-size: 0.9em;">📍 Time Zone: {time.tzname[0]}</div>
+</div>
+""", unsafe_allow_html=True)
 
 # ========== GITHUB FUNCTIONS ==========
 
@@ -177,6 +217,7 @@ def add_history(data, action, item_type, item_name, details=""):
     if 'history' not in data: data['history'] = []
     data['history'].append({
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "date": datetime.now().strftime("%Y-%m-%d"),
         "action": action,
         "type": item_type,
         "name": item_name,
@@ -208,12 +249,44 @@ def get_deadline_status(deadline_str):
     except:
         return {"label": "Invalid date", "class": "deadline-green"}
 
+def generate_individual_word(item, item_type):
+    """Generate Word document for a single item"""
+    word = "=" * 60 + "\n"
+    word += f"📚 {item_type.upper()} DETAILS\n"
+    word += "=" * 60 + "\n\n"
+    
+    if item_type == "scholarship":
+        word += f"🎓 Name: {item.get('name', 'N/A')}\n"
+        word += f"🏛️ University: {item.get('uni', 'N/A')}\n"
+        word += f"📅 Deadline: {item.get('deadline', 'N/A')}\n"
+        word += f"🌍 Country: {item.get('country', 'N/A')}\n"
+        word += f"📊 Status: {item.get('status', 'active')}\n"
+        word += f"📝 Notes: {item.get('notes', 'N/A')}\n"
+        word += f"🔗 Link: {item.get('link', 'N/A')}\n"
+        word += f"🕐 Added: {item.get('createdAt', 'N/A')}\n"
+    else:  # job
+        word += f"💼 Title: {item.get('title', 'N/A')}\n"
+        word += f"🏢 Company: {item.get('company', 'N/A')}\n"
+        word += f"📅 Deadline: {item.get('deadline', 'N/A')}\n"
+        word += f"📍 Location: {item.get('location', 'N/A')}\n"
+        word += f"📊 Status: {item.get('status', 'active')}\n"
+        word += f"📝 Notes: {item.get('notes', 'N/A')}\n"
+        word += f"🔗 Link: {item.get('link', 'N/A')}\n"
+        word += f"🕐 Added: {item.get('createdAt', 'N/A')}\n"
+    
+    word += "\n" + "=" * 60 + "\n"
+    word += f"📅 Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+    word += "=" * 60 + "\n"
+    
+    return word
+
 # ========== LOAD DATA ==========
 
 if 'data' not in st.session_state:
     st.session_state.data = get_data()
     st.session_state.s_saving = False
     st.session_state.j_saving = False
+    st.session_state.selected_date = None
 
 data = st.session_state.data
 
@@ -231,25 +304,13 @@ with st.sidebar:
     st.metric("🎓 Scholarships", total_s)
     st.metric("💼 Jobs", total_j)
     st.metric("📝 Notes", len(data.get('notes', [])))
-    
-    st.markdown("---")
-    
-    st.subheader("📜 Recent History")
-    history = data.get('history', [])
-    if history:
-        for h in history[-3:]:
-            st.markdown(f"""
-            <div class="history-item">
-                <small>{h.get('timestamp', '')[:16]}</small><br>
-                <b>{h.get('action', '')}</b> {h.get('name', '')}
-            </div>
-            """, unsafe_allow_html=True)
+    st.metric("📜 History", len(data.get('history', [])))
     
     st.markdown("---")
     st.caption("📦 Data saved on GitHub")
     st.caption(f"🔗 github.com/{USER}/{REPO}")
 
-# ========== 5S DASHBOARD - DYNAMIC ==========
+# ========== 5S DASHBOARD ==========
 
 st.header("🏭 5S Dashboard - Live Status")
 
@@ -268,7 +329,7 @@ with col1:
     st.markdown(f"""
     <div class="ss-sort">
         <b>📋 SORT</b><br>
-        <small>Active Items</small><br>
+        <small>Active</small><br>
         <b style="font-size: 2em;">{active_count}</b>
     </div>
     """, unsafe_allow_html=True)
@@ -277,7 +338,7 @@ with col2:
     st.markdown(f"""
     <div class="ss-set">
         <b>📌 SET</b><br>
-        <small>Total Items</small><br>
+        <small>Total</small><br>
         <b style="font-size: 2em;">{total_count}</b>
     </div>
     """, unsafe_allow_html=True)
@@ -331,7 +392,7 @@ if total_count > 0:
         st.markdown(f"""
         <div class="stats-card">
             <div class="stats-number">{completion}%</div>
-            <div class="stats-label">✅ Completion Rate</div>
+            <div class="stats-label">✅ Completion</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -352,146 +413,12 @@ if total_count > 0:
         </div>
         """, unsafe_allow_html=True)
     
-    # Progress bar
     st.progress(completion / 100)
     st.caption(f"📈 Progress: {completion}% complete")
 
 st.markdown("---")
 
-# ========== WORD FORMAT EXPORT ==========
-
-st.header("📄 Word Format Export - Copy & Paste Ready")
-
-col1, col2 = st.columns([2, 1])
-
-with col1:
-    if st.button("📝 Generate Full Report", type="primary", use_container_width=True):
-        word_content = "=" * 60 + "\n"
-        word_content += "📚 SCHOLARSHIP & JOB TRACKER REPORT\n"
-        word_content += f"📅 Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
-        word_content += "=" * 60 + "\n\n"
-        
-        word_content += "🎓 SCHOLARSHIPS\n"
-        word_content += "-" * 40 + "\n"
-        if data.get('scholarships'):
-            for s in data['scholarships']:
-                word_content += f"• {s.get('name', '')}\n"
-                word_content += f"  University: {s.get('uni', 'N/A')}\n"
-                word_content += f"  Deadline: {s.get('deadline', 'N/A')}\n"
-                word_content += f"  Status: {s.get('status', 'active')}\n"
-                if s.get('notes'): word_content += f"  Notes: {s.get('notes')}\n"
-                word_content += "\n"
-        else:
-            word_content += "No scholarships added yet.\n\n"
-        
-        word_content += "💼 JOBS\n"
-        word_content += "-" * 40 + "\n"
-        if data.get('jobs'):
-            for j in data['jobs']:
-                word_content += f"• {j.get('title', '')}\n"
-                word_content += f"  Company: {j.get('company', 'N/A')}\n"
-                word_content += f"  Deadline: {j.get('deadline', 'N/A')}\n"
-                word_content += f"  Status: {j.get('status', 'active')}\n"
-                if j.get('notes'): word_content += f"  Notes: {j.get('notes')}\n"
-                word_content += "\n"
-        else:
-            word_content += "No jobs added yet.\n\n"
-        
-        word_content += "📝 NOTES\n"
-        word_content += "-" * 40 + "\n"
-        if data.get('notes'):
-            for n in data['notes']:
-                word_content += f"• {n.get('content', '')}\n"
-                word_content += f"  Added: {n.get('timestamp', '')}\n\n"
-        else:
-            word_content += "No notes added yet.\n\n"
-        
-        word_content += "📜 HISTORY LOG\n"
-        word_content += "-" * 40 + "\n"
-        if data.get('history'):
-            for h in data['history']:
-                word_content += f"{h.get('timestamp', '')} - {h.get('action', '')}: {h.get('name', '')}\n"
-        else:
-            word_content += "No history yet.\n"
-        
-        word_content += "\n" + "=" * 60 + "\n"
-        word_content += "📊 SUMMARY STATISTICS\n"
-        word_content += "=" * 60 + "\n"
-        word_content += f"Total Scholarships: {len(data.get('scholarships', []))}\n"
-        word_content += f"Total Jobs: {len(data.get('jobs', []))}\n"
-        word_content += f"Total Notes: {len(data.get('notes', []))}\n"
-        word_content += f"Total Actions: {len(data.get('history', []))}\n"
-        word_content += f"Active: {active_count}\n"
-        word_content += f"Submitted: {submitted_count}\n"
-        word_content += f"Accepted: {accepted_count}\n"
-        
-        st.session_state.word_content = word_content
-        st.rerun()
-
-with col2:
-    if st.button("📋 Copy All", type="secondary", use_container_width=True):
-        st.info("✅ Ready to copy! Select all text below and press Ctrl+C")
-
-if 'word_content' in st.session_state:
-    st.markdown("---")
-    st.subheader("📋 Your Report (Select all and Copy)")
-    st.markdown(f"""
-    <div class="word-export" id="word-content">
-        {st.session_state.word_content}
-    </div>
-    """, unsafe_allow_html=True)
-    st.caption("💡 Tip: Click inside the box, press Ctrl+A to select all, then Ctrl+C to copy")
-
-st.markdown("---")
-
-# ========== NOTES SECTION ==========
-
-st.header("📝 Quick Notes - Save Everything")
-
-with st.expander("➕ Add New Note", expanded=False):
-    note_content = st.text_area("📝 Write your note here", height=150, key="note_input")
-    
-    if st.button("💾 Save Note", type="primary"):
-        if note_content:
-            if 'notes' not in data: data['notes'] = []
-            data['notes'].append({
-                "id": str(datetime.now().timestamp()),
-                "content": note_content,
-                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            })
-            data = add_history(data, "Added Note", "Note", note_content[:30] + "...")
-            if save_data(data):
-                st.success("✅ Note Saved Permanently!")
-                time.sleep(0.5)
-                st.rerun()
-        else:
-            st.error("❌ Please enter some text!")
-
-# Display notes
-notes = data.get('notes', [])
-if notes:
-    st.subheader(f"📋 Your Notes ({len(notes)})")
-    for idx, n in enumerate(reversed(notes)):
-        with st.container():
-            col1, col2 = st.columns([6, 1])
-            with col1:
-                st.markdown(f"""
-                <div class="note-card">
-                    <b>📝 {n.get('content', '')}</b><br>
-                    <small>🕐 {n.get('timestamp', '')}</small>
-                </div>
-                """, unsafe_allow_html=True)
-            with col2:
-                if st.button("🗑️", key=f"note_del_{idx}"):
-                    data['notes'].remove(n)
-                    save_data(data)
-                    st.rerun()
-else:
-    st.info("No notes yet. Add your first note above!")
-
-st.markdown("---")
-
-# ========== MASTER CV ==========
+# ========== MASTER CV SECTION ==========
 
 st.header("📄 Master CV")
 
@@ -511,6 +438,95 @@ with st.expander("✏️ Edit Your Master CV", expanded=False):
 
 if data.get('masterCV', {}).get('content'):
     st.info(f"✅ CV saved: {data['masterCV'].get('lastUpdated', 'Never')}")
+    with st.expander("👁️ View CV"):
+        st.text(data['masterCV'].get('content', ''))
+
+st.markdown("---")
+
+# ========== CALENDAR & DATE FILTER ==========
+
+st.header("📅 Calendar - Click a Date to Filter History")
+
+current_date = datetime.now()
+current_month = current_date.month
+current_year = current_date.year
+
+# Month navigation
+col1, col2, col3 = st.columns([1, 2, 1])
+with col1:
+    if st.button("◀️ Previous"):
+        if current_month == 1:
+            current_month = 12
+            current_year -= 1
+        else:
+            current_month -= 1
+with col2:
+    st.markdown(f"<h3 style='text-align: center;'>{datetime(current_year, current_month, 1).strftime('%B %Y')}</h3>", unsafe_allow_html=True)
+with col3:
+    if st.button("Next ▶️"):
+        if current_month == 12:
+            current_month = 1
+            current_year += 1
+        else:
+            current_month += 1
+
+# Get calendar for month
+cal = monthcalendar(current_year, current_month)
+
+# Build calendar grid
+days_of_week = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+cols = st.columns(7)
+
+for i, day in enumerate(days_of_week):
+    cols[i].markdown(f"<div style='text-align: center; font-weight: bold;'>{day}</div>", unsafe_allow_html=True)
+
+# Get dates with history
+history_dates = set([h.get('date', '') for h in data.get('history', [])])
+
+for week in cal:
+    cols = st.columns(7)
+    for i, day in enumerate(week):
+        if day == 0:
+            cols[i].write("")
+        else:
+            date_str = f"{current_year}-{current_month:02d}-{day:02d}"
+            is_today = date_str == current_date.strftime("%Y-%m-%d")
+            has_items = date_str in history_dates
+            is_selected = st.session_state.selected_date == date_str
+            
+            # Determine style
+            style = "calendar-day"
+            if is_today: style += " today"
+            if has_items: style += " has-items"
+            if is_selected: style += " selected"
+            
+            # Create button for each day
+            if cols[i].button(str(day), key=f"cal_{date_str}", use_container_width=True):
+                st.session_state.selected_date = date_str if st.session_state.selected_date != date_str else None
+                st.rerun()
+
+# Show selected date items
+if st.session_state.selected_date:
+    selected_date = st.session_state.selected_date
+    st.subheader(f"📋 History for {selected_date}")
+    
+    filtered_history = [h for h in data.get('history', []) if h.get('date', '') == selected_date]
+    
+    if filtered_history:
+        for h in filtered_history:
+            emoji = {"Added": "➕", "Submitted": "📤", "Accepted": "✅", "Rejected": "❌", "Deleted": "🗑️", "Updated CV": "📄"}.get(h.get('action', ''), "📌")
+            st.markdown(f"""
+            <div class="history-item">
+                <b>{emoji} {h.get('action', '')}</b> {h.get('type', '')}: <b>{h.get('name', '')}</b>
+                <br><small>🕐 {h.get('timestamp', '')}</small>
+            </div>
+            """, unsafe_allow_html=True)
+    else:
+        st.info("No history for this date")
+    
+    if st.button("Clear Filter"):
+        st.session_state.selected_date = None
+        st.rerun()
 
 st.markdown("---")
 
@@ -563,7 +579,7 @@ with st.expander("➕ Add New Scholarship", expanded=False):
         st.session_state.s_saving = False
         st.rerun()
 
-# Display Scholarships with color coding
+# Display Scholarships with INDIVIDUAL EXPORT
 scholarships = data.get('scholarships', [])
 if scholarships:
     st.subheader(f"📋 Your Scholarships ({len(scholarships)})")
@@ -572,12 +588,12 @@ if scholarships:
     for idx, s in enumerate(sorted_items):
         deadline_status = get_deadline_status(s.get('deadline'))
         with st.container():
-            col1, col2, col3 = st.columns([3, 2, 1])
+            col1, col2, col3, col4 = st.columns([2.5, 1.5, 1, 1])
             with col1:
                 st.markdown(f"**{s.get('name', '')}**")
                 if s.get('uni'): st.caption(f"🏛️ {s.get('uni')}")
                 if s.get('country'): st.caption(f"🌍 {s.get('country')}")
-                if s.get('notes'): st.caption(f"📝 {s.get('notes')[:100]}")
+                if s.get('notes'): st.caption(f"📝 {s.get('notes')[:80]}")
             with col2:
                 st.write(f"📅 {s.get('deadline', 'No deadline')}")
                 st.markdown(f"<span class='{deadline_status['class']}'>{deadline_status['label']}</span>", unsafe_allow_html=True)
@@ -585,13 +601,19 @@ if scholarships:
                 icons = {"active": "🟢 Active", "submitted": "📤 Submitted", "accepted": "✅ Accepted", "rejected": "❌ Rejected"}
                 st.write(icons.get(status, status))
             with col3:
+                # Individual Word Export Button
+                if st.button("📄 Export Word", key=f"s_export_{idx}"):
+                    word_content = generate_individual_word(s, "scholarship")
+                    st.session_state[f"word_export_s_{idx}"] = word_content
+                    st.rerun()
                 if s.get('status') == 'active':
                     if st.button("📤 Submit", key=f"s_sub_{idx}"):
                         s['status'] = 'submitted'
                         data = add_history(data, "Submitted", "Scholarship", s.get('name'))
                         save_data(data)
                         st.rerun()
-                elif s.get('status') == 'submitted':
+            with col4:
+                if s.get('status') == 'submitted':
                     if st.button("✅ Accept", key=f"s_acc_{idx}"):
                         s['status'] = 'accepted'
                         data = add_history(data, "Accepted", "Scholarship", s.get('name'))
@@ -607,6 +629,17 @@ if scholarships:
                     data = add_history(data, "Deleted", "Scholarship", s.get('name'))
                     save_data(data)
                     st.rerun()
+            
+            # Show individual export if exists
+            if st.session_state.get(f"word_export_s_{idx}"):
+                st.markdown(f"""
+                <div class="word-export">
+                    {st.session_state[f"word_export_s_{idx}"]}
+                </div>
+                """, unsafe_allow_html=True)
+                if st.button("📋 Copy to Clipboard", key=f"s_copy_{idx}"):
+                    st.info("✅ Select text above and press Ctrl+C")
+            
             st.divider()
 
 st.markdown("---")
@@ -660,7 +693,7 @@ with st.expander("➕ Add New Job", expanded=False):
         st.session_state.j_saving = False
         st.rerun()
 
-# Display Jobs with color coding
+# Display Jobs with INDIVIDUAL EXPORT
 jobs = data.get('jobs', [])
 if jobs:
     st.subheader(f"📋 Your Jobs ({len(jobs)})")
@@ -669,12 +702,12 @@ if jobs:
     for idx, j in enumerate(sorted_items):
         deadline_status = get_deadline_status(j.get('deadline'))
         with st.container():
-            col1, col2, col3 = st.columns([3, 2, 1])
+            col1, col2, col3, col4 = st.columns([2.5, 1.5, 1, 1])
             with col1:
                 st.markdown(f"**{j.get('title', '')}**")
                 if j.get('company'): st.caption(f"🏢 {j.get('company')}")
                 if j.get('location'): st.caption(f"📍 {j.get('location')}")
-                if j.get('notes'): st.caption(f"📝 {j.get('notes')[:100]}")
+                if j.get('notes'): st.caption(f"📝 {j.get('notes')[:80]}")
             with col2:
                 st.write(f"📅 {j.get('deadline', 'No deadline')}")
                 st.markdown(f"<span class='{deadline_status['class']}'>{deadline_status['label']}</span>", unsafe_allow_html=True)
@@ -682,13 +715,19 @@ if jobs:
                 icons = {"active": "🟢 Active", "submitted": "📤 Submitted", "accepted": "✅ Accepted", "rejected": "❌ Rejected"}
                 st.write(icons.get(status, status))
             with col3:
+                # Individual Word Export Button
+                if st.button("📄 Export Word", key=f"j_export_{idx}"):
+                    word_content = generate_individual_word(j, "job")
+                    st.session_state[f"word_export_j_{idx}"] = word_content
+                    st.rerun()
                 if j.get('status') == 'active':
                     if st.button("📤 Submit", key=f"j_sub_{idx}"):
                         j['status'] = 'submitted'
                         data = add_history(data, "Submitted", "Job", j.get('title'))
                         save_data(data)
                         st.rerun()
-                elif j.get('status') == 'submitted':
+            with col4:
+                if j.get('status') == 'submitted':
                     if st.button("✅ Accept", key=f"j_acc_{idx}"):
                         j['status'] = 'accepted'
                         data = add_history(data, "Accepted", "Job", j.get('title'))
@@ -704,40 +743,103 @@ if jobs:
                     data = add_history(data, "Deleted", "Job", j.get('title'))
                     save_data(data)
                     st.rerun()
+            
+            # Show individual export if exists
+            if st.session_state.get(f"word_export_j_{idx}"):
+                st.markdown(f"""
+                <div class="word-export">
+                    {st.session_state[f"word_export_j_{idx}"]}
+                </div>
+                """, unsafe_allow_html=True)
+                if st.button("📋 Copy to Clipboard", key=f"j_copy_{idx}"):
+                    st.info("✅ Select text above and press Ctrl+C")
+            
             st.divider()
 
 st.markdown("---")
 
-# ========== HISTORY LOG - FULL TEXT ==========
+# ========== NOTES SECTION ==========
 
-st.header("📜 Complete History Log - All Actions")
+st.header("📝 Quick Notes")
 
-history = data.get('history', [])
-if history:
-    # Create full text version for copy
-    history_text = "📜 COMPLETE HISTORY LOG\n"
-    history_text += "=" * 50 + "\n"
-    for h in reversed(history):
-        history_text += f"{h.get('timestamp', '')} - {h.get('action', '')}: {h.get('name', '')}\n"
-        if h.get('details'): history_text += f"  Details: {h.get('details')}\n"
-    history_text += "=" * 50 + "\n"
-    history_text += f"Total Actions: {len(history)}"
+with st.expander("➕ Add New Note", expanded=False):
+    note_content = st.text_area("📝 Write your note here", height=150, key="note_input")
     
-    st.text_area("📋 Full History (Copy this)", history_text, height=300)
+    if st.button("💾 Save Note", type="primary"):
+        if note_content:
+            if 'notes' not in data: data['notes'] = []
+            data['notes'].append({
+                "id": str(datetime.now().timestamp()),
+                "content": note_content,
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            })
+            data = add_history(data, "Added Note", "Note", note_content[:30] + "...")
+            if save_data(data):
+                st.success("✅ Note Saved Permanently!")
+                time.sleep(0.5)
+                st.rerun()
+        else:
+            st.error("❌ Please enter some text!")
+
+notes = data.get('notes', [])
+if notes:
+    st.subheader(f"📋 Your Notes ({len(notes)})")
+    for idx, n in enumerate(reversed(notes)):
+        with st.container():
+            col1, col2 = st.columns([6, 1])
+            with col1:
+                st.markdown(f"""
+                <div class="note-card">
+                    <b>📝 {n.get('content', '')}</b><br>
+                    <small>🕐 {n.get('timestamp', '')}</small>
+                </div>
+                """, unsafe_allow_html=True)
+            with col2:
+                if st.button("🗑️", key=f"note_del_{idx}"):
+                    data['notes'].remove(n)
+                    save_data(data)
+                    st.rerun()
+
+st.markdown("---")
+
+# ========== COMPLETE HISTORY ==========
+
+st.header("📜 Complete History Log")
+
+# Full history export
+if data.get('history'):
+    full_history = "📜 COMPLETE HISTORY\n"
+    full_history += "=" * 60 + "\n"
+    for h in reversed(data['history']):
+        full_history += f"{h.get('timestamp', '')} - {h.get('action', '')}: {h.get('name', '')}\n"
+        if h.get('details'): full_history += f"  Details: {h.get('details')}\n"
+    full_history += "=" * 60 + "\n"
+    full_history += f"Total: {len(data['history'])} actions"
     
-    # Also show in nice format
+    if st.button("📄 Export Full History as Word"):
+        st.session_state.full_history_export = full_history
+        st.rerun()
+    
+    if st.session_state.get('full_history_export'):
+        st.markdown(f"""
+        <div class="word-export">
+            {st.session_state.full_history_export}
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("📋 Copy Full History"):
+            st.info("✅ Select text above and press Ctrl+C")
+    
     st.subheader("📋 History Timeline")
-    for h in reversed(history):
+    for h in reversed(data['history']):
         emoji = {"Added": "➕", "Submitted": "📤", "Accepted": "✅", "Rejected": "❌", "Deleted": "🗑️", "Updated CV": "📄"}.get(h.get('action', ''), "📌")
         st.markdown(f"""
         <div class="history-item">
             <b>{emoji} {h.get('action', '')}</b> {h.get('type', '')}: <b>{h.get('name', '')}</b>
             <br><small>🕐 {h.get('timestamp', '')}</small>
-            {f'<br><small>📝 {h.get("details", "")}</small>' if h.get('details') else ''}
         </div>
         """, unsafe_allow_html=True)
 else:
-    st.info("No history yet. Start adding scholarships and jobs!")
+    st.info("No history yet")
 
 # ========== FOOTER ==========
 
