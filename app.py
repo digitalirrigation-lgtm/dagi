@@ -109,15 +109,15 @@ st.header("🎓 Scholarships")
 with st.expander("➕ Add Scholarship"):
     col1, col2 = st.columns(2)
     with col1:
-        name = st.text_input("Name *")
-        uni = st.text_input("University")
+        name = st.text_input("Name *", key="s_name")
+        uni = st.text_input("University", key="s_uni")
     with col2:
-        deadline = st.date_input("Deadline *")
-        country = st.text_input("Country")
+        deadline = st.date_input("Deadline *", key="scholarship_date")  # ← FIXED!
+        country = st.text_input("Country", key="s_country")
     
-    notes = st.text_area("Notes")
+    notes = st.text_area("Notes", key="s_notes")
     
-    if st.button("💾 Save Scholarship"):
+    if st.button("💾 Save Scholarship", key="save_s"):
         if name and deadline:
             new_s = {
                 "id": str(datetime.now().timestamp()),
@@ -165,15 +165,15 @@ st.header("💼 Jobs")
 with st.expander("➕ Add Job"):
     col1, col2 = st.columns(2)
     with col1:
-        title = st.text_input("Job Title *")
-        company = st.text_input("Company *")
+        title = st.text_input("Job Title *", key="j_title")
+        company = st.text_input("Company *", key="j_company")
     with col2:
-        deadline = st.date_input("Deadline *")
-        location = st.text_input("Location")
+        deadline = st.date_input("Deadline *", key="job_date")  # ← FIXED!
+        location = st.text_input("Location", key="j_location")
     
-    notes = st.text_area("Notes")
+    notes = st.text_area("Notes", key="j_notes")
     
-    if st.button("💾 Save Job"):
+    if st.button("💾 Save Job", key="save_j"):
         if title and company and deadline:
             new_j = {
                 "id": str(datetime.now().timestamp()),
