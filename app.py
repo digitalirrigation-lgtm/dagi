@@ -329,15 +329,26 @@ def generate_word_cv(data, cv_type):
     
     return word
 
-# ========== LOAD DATA ==========
+# ========== LOAD DATA & INITIALIZE SESSION STATE ==========
 
 if 'data' not in st.session_state:
     st.session_state.data = get_data()
+
+# Always initialize other session state variables
+if 's_saving' not in st.session_state:
     st.session_state.s_saving = False
+if 'j_saving' not in st.session_state:
     st.session_state.j_saving = False
+if 'selected_date' not in st.session_state:
     st.session_state.selected_date = None
-    # Store individual word exports as dict
+if 'word_exports' not in st.session_state:
     st.session_state.word_exports = {}
+if 'master_word_export' not in st.session_state:
+    st.session_state.master_word_export = None
+if 'minor_word_export' not in st.session_state:
+    st.session_state.minor_word_export = None
+if 'full_history_export' not in st.session_state:
+    st.session_state.full_history_export = None
 
 data = st.session_state.data
 
@@ -632,8 +643,7 @@ with st.expander("✏️ Edit Master CV", expanded=False):
     
     with col2:
         if st.button("📥 Download Master CV", type="secondary"):
-            word_content = generate_word_cv(data, "masterCV")
-            st.session_state.master_word_export = word_content
+            st.session_state.master_word_export = generate_word_cv(data, "masterCV")
             st.rerun()
 
 if master_cv.get('content'):
@@ -645,7 +655,7 @@ if master_cv.get('content'):
     </div>
     """, unsafe_allow_html=True)
 
-if st.session_state.get('master_word_export'):
+if st.session_state.master_word_export:
     st.subheader("📋 Master CV - Word Format")
     st.markdown(f"""
     <div class="word-export">
@@ -654,7 +664,7 @@ if st.session_state.get('master_word_export'):
     """, unsafe_allow_html=True)
     st.info("📋 Select all text above and press Ctrl+C to copy")
     if st.button("Clear Master CV Export"):
-        del st.session_state.master_word_export
+        st.session_state.master_word_export = None
         st.rerun()
 
 st.markdown("---")
@@ -683,8 +693,7 @@ with st.expander("✏️ Edit Minor CV", expanded=False):
     
     with col2:
         if st.button("📥 Download Minor CV", type="secondary"):
-            word_content = generate_word_cv(data, "minorCV")
-            st.session_state.minor_word_export = word_content
+            st.session_state.minor_word_export = generate_word_cv(data, "minorCV")
             st.rerun()
 
 if minor_cv.get('content'):
@@ -696,7 +705,7 @@ if minor_cv.get('content'):
     </div>
     """, unsafe_allow_html=True)
 
-if st.session_state.get('minor_word_export'):
+if st.session_state.minor_word_export:
     st.subheader("📋 Minor CV - Word Format")
     st.markdown(f"""
     <div class="word-export">
@@ -705,7 +714,7 @@ if st.session_state.get('minor_word_export'):
     """, unsafe_allow_html=True)
     st.info("📋 Select all text above and press Ctrl+C to copy")
     if st.button("Clear Minor CV Export"):
-        del st.session_state.minor_word_export
+        st.session_state.minor_word_export = None
         st.rerun()
 
 st.markdown("---")
@@ -752,7 +761,7 @@ with st.expander("Add Experience/Section to CVs", expanded=False):
 st.header("🎓 Scholarships")
 
 with st.expander("➕ Add New Scholarship", expanded=False):
-    if not st.session_state.get('s_saving', False):
+    if not st.session_state.s_saving:
         col1, col2 = st.columns(2)
         with col1:
             name = st.text_input("Scholarship Name *", key="s_name")
@@ -839,7 +848,6 @@ if scholarships:
                 icons = {"active": "🟢 Active", "submitted": "📤 Submitted", "accepted": "✅ Accepted", "rejected": "❌ Rejected"}
                 st.write(icons.get(status, status))
             with col3:
-                # Individual Word Export
                 key = f"word_s_{idx}"
                 if st.button("📄 Word", key=f"s_word_{idx}", help="Export this scholarship to Word format"):
                     st.session_state.word_exports[key] = generate_individual_word(s, "scholarship")
@@ -889,7 +897,7 @@ st.markdown("---")
 st.header("💼 Jobs")
 
 with st.expander("➕ Add New Job", expanded=False):
-    if not st.session_state.get('j_saving', False):
+    if not st.session_state.j_saving:
         col1, col2 = st.columns(2)
         with col1:
             title = st.text_input("Job Title *", key="j_title")
@@ -1090,7 +1098,7 @@ if st.button("📄 Export Full History as Word"):
     st.session_state.full_history_export = full_history
     st.rerun()
 
-if st.session_state.get('full_history_export'):
+if st.session_state.full_history_export:
     st.subheader("📋 Full History - Word Format")
     st.markdown(f"""
     <div class="word-export">
@@ -1099,7 +1107,7 @@ if st.session_state.get('full_history_export'):
     """, unsafe_allow_html=True)
     st.info("📋 Select all text above and press Ctrl+C to copy")
     if st.button("Clear History Export"):
-        del st.session_state.full_history_export
+        st.session_state.full_history_export = None
         st.rerun()
 
 if data.get('history'):
