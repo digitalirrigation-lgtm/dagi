@@ -1,5 +1,17 @@
 {
-  "scholarships": [],
+  "scholarships": [
+    {
+      "id": "1785080666.330845",
+      "name": "\"TEST123\"",
+      "uni": "",
+      "deadline": "2026-07-26",
+      "country": "",
+      "notes": "",
+      "link": "",
+      "status": "active",
+      "createdAt": "2026-07-26 15:44:26"
+    }
+  ],
   "jobs": [],
   "masterCV": {
     "title": "My Master CV",
