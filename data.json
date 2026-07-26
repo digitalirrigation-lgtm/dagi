@@ -104,8 +104,8 @@
   ],
   "masterCV": {
     "title": "My Master CV",
-    "content": "love",
-    "lastUpdated": "2026-07-26 16:46:00"
+    "content": "haile",
+    "lastUpdated": "2026-07-26 16:46:12"
   },
   "history": [
     {
@@ -256,6 +256,14 @@
     },
     {
       "timestamp": "2026-07-26 16:46:00",
+      "date": "2026-07-26",
+      "action": "Updated CV",
+      "type": "CV",
+      "name": "My Master CV",
+      "details": ""
+    },
+    {
+      "timestamp": "2026-07-26 16:46:12",
       "date": "2026-07-26",
       "action": "Updated CV",
       "type": "CV",
