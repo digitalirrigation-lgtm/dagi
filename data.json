@@ -10,6 +10,17 @@
       "link": "",
       "status": "submitted",
       "createdAt": "2026-07-26 15:44:26"
+    },
+    {
+      "id": "1785081222.733544",
+      "name": "moon",
+      "uni": "jju",
+      "deadline": "2026-07-28",
+      "country": "",
+      "notes": "life is now and here ",
+      "link": "https://ethiojobs.net/job/X8CfzfPK2w-storekeeper",
+      "status": "active",
+      "createdAt": "2026-07-26 15:53:42"
     }
   ],
   "jobs": [
@@ -37,6 +48,13 @@
       "type": "CV",
       "name": "My Master CV",
       "details": ""
+    },
+    {
+      "timestamp": "2026-07-26 15:53:42",
+      "action": "Added",
+      "type": "Scholarship",
+      "name": "moon",
+      "details": "Deadline: 2026-07-28"
     }
   ]
 }
