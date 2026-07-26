@@ -12,7 +12,19 @@
       "createdAt": "2026-07-26 15:44:26"
     }
   ],
-  "jobs": [],
+  "jobs": [
+    {
+      "id": "1785080708.986218",
+      "title": "plan B ",
+      "company": "go  to work ",
+      "deadline": "2026-07-28",
+      "location": "",
+      "notes": "do it again and again",
+      "link": "",
+      "status": "active",
+      "createdAt": "2026-07-26 15:45:08"
+    }
+  ],
   "masterCV": {
     "title": "My Master CV",
     "content": "zed10",
