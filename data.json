@@ -87,6 +87,17 @@
       "link": "https://ethiojobs.net/job/X8CfzfPK2w-storekeeper",
       "status": "accepted",
       "createdAt": "2026-07-26 21:11:29"
+    },
+    {
+      "id": "1785096124.218341",
+      "name": "J",
+      "uni": "B",
+      "deadline": "2026-07-27",
+      "country": "Ll",
+      "notes": "Hh",
+      "link": "",
+      "status": "active",
+      "createdAt": "2026-07-26 23:02:04"
     }
   ],
   "jobs": [
@@ -511,6 +522,14 @@
       "action": "Added CV Section",
       "type": "CV",
       "name": "Hooo",
+      "details": ""
+    },
+    {
+      "timestamp": "2026-07-26 23:02:04",
+      "date": "2026-07-26",
+      "action": "Added",
+      "type": "Scholarship",
+      "name": "J",
       "details": ""
     }
   ],
