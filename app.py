@@ -34,7 +34,6 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-    /* Welcome Section */
     .welcome-box {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
@@ -47,14 +46,12 @@ st.markdown("""
     .welcome-time { font-size: 1.5em; opacity: 0.9; }
     .welcome-date { font-size: 1.2em; opacity: 0.8; }
     
-    /* 5S Dashboard */
     .ss-sort { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 15px; margin: 5px 0; text-align: center; }
     .ss-set { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 15px; border-radius: 15px; margin: 5px 0; text-align: center; }
     .ss-shine { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 15px; border-radius: 15px; margin: 5px 0; text-align: center; }
     .ss-standardize { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 15px; border-radius: 15px; margin: 5px 0; text-align: center; }
     .ss-sustain { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; padding: 15px; border-radius: 15px; margin: 5px 0; text-align: center; }
     
-    /* Deadline Colors */
     .deadline-red { background: #dc3545; color: white; padding: 5px 15px; border-radius: 25px; font-weight: bold; display: inline-block; animation: blink 1s infinite; }
     .deadline-yellow { background: #ffc107; color: black; padding: 5px 15px; border-radius: 25px; font-weight: bold; display: inline-block; }
     .deadline-green { background: #28a745; color: white; padding: 5px 15px; border-radius: 25px; font-weight: bold; display: inline-block; }
@@ -65,7 +62,6 @@ st.markdown("""
         100% { opacity: 1; }
     }
     
-    /* History Items */
     .history-item { 
         padding: 12px; 
         background: #f8f9fa; 
@@ -76,7 +72,6 @@ st.markdown("""
     }
     .history-item:hover { background: #e9ecef; transform: translateX(5px); }
     
-    /* Word Export Box */
     .word-export {
         background: white;
         padding: 25px;
@@ -90,7 +85,6 @@ st.markdown("""
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
     
-    /* Calendar Styling */
     .calendar-day {
         padding: 10px;
         margin: 2px;
@@ -106,16 +100,6 @@ st.markdown("""
     .calendar-day.has-items { background: #28a745; color: white; }
     .calendar-day.today { border: 3px solid #007bff; font-weight: bold; }
     
-    .calendar-header {
-        background: #007bff;
-        color: white;
-        padding: 10px;
-        border-radius: 10px 10px 0 0;
-        text-align: center;
-        font-weight: bold;
-    }
-    
-    /* Note Cards */
     .note-card {
         background: #fff3cd;
         padding: 15px;
@@ -124,19 +108,6 @@ st.markdown("""
         margin: 10px 0;
     }
     
-    /* Individual Export Button */
-    .export-btn {
-        background: #28a745;
-        color: white;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: bold;
-    }
-    .export-btn:hover { background: #218838; }
-    
-    /* Stats Cards */
     .stats-card {
         background: white;
         padding: 15px;
@@ -264,7 +235,7 @@ def generate_individual_word(item, item_type):
         word += f"📝 Notes: {item.get('notes', 'N/A')}\n"
         word += f"🔗 Link: {item.get('link', 'N/A')}\n"
         word += f"🕐 Added: {item.get('createdAt', 'N/A')}\n"
-    else:  # job
+    else:
         word += f"💼 Title: {item.get('title', 'N/A')}\n"
         word += f"🏢 Company: {item.get('company', 'N/A')}\n"
         word += f"📅 Deadline: {item.get('deadline', 'N/A')}\n"
@@ -280,12 +251,15 @@ def generate_individual_word(item, item_type):
     
     return word
 
-# ========== LOAD DATA ==========
+# ========== LOAD DATA - FIXED! ==========
 
 if 'data' not in st.session_state:
     st.session_state.data = get_data()
     st.session_state.s_saving = False
     st.session_state.j_saving = False
+    
+# ✅ FIX: Initialize selected_date if it doesn't exist
+if 'selected_date' not in st.session_state:
     st.session_state.selected_date = None
 
 data = st.session_state.data
@@ -418,7 +392,7 @@ if total_count > 0:
 
 st.markdown("---")
 
-# ========== MASTER CV SECTION ==========
+# ========== MASTER CV ==========
 
 st.header("📄 Master CV")
 
@@ -443,10 +417,11 @@ if data.get('masterCV', {}).get('content'):
 
 st.markdown("---")
 
-# ========== CALENDAR & DATE FILTER ==========
+# ========== CALENDAR ==========
 
 st.header("📅 Calendar - Click a Date to Filter History")
 
+# Current month/year from real time
 current_date = datetime.now()
 current_month = current_date.month
 current_year = current_date.year
@@ -470,13 +445,12 @@ with col3:
         else:
             current_month += 1
 
-# Get calendar for month
+# Get calendar
 cal = monthcalendar(current_year, current_month)
 
-# Build calendar grid
+# Day headers
 days_of_week = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 cols = st.columns(7)
-
 for i, day in enumerate(days_of_week):
     cols[i].markdown(f"<div style='text-align: center; font-weight: bold;'>{day}</div>", unsafe_allow_html=True)
 
@@ -494,15 +468,16 @@ for week in cal:
             has_items = date_str in history_dates
             is_selected = st.session_state.selected_date == date_str
             
-            # Determine style
             style = "calendar-day"
             if is_today: style += " today"
             if has_items: style += " has-items"
             if is_selected: style += " selected"
             
-            # Create button for each day
             if cols[i].button(str(day), key=f"cal_{date_str}", use_container_width=True):
-                st.session_state.selected_date = date_str if st.session_state.selected_date != date_str else None
+                if st.session_state.selected_date == date_str:
+                    st.session_state.selected_date = None
+                else:
+                    st.session_state.selected_date = date_str
                 st.rerun()
 
 # Show selected date items
@@ -579,7 +554,7 @@ with st.expander("➕ Add New Scholarship", expanded=False):
         st.session_state.s_saving = False
         st.rerun()
 
-# Display Scholarships with INDIVIDUAL EXPORT
+# Display Scholarships
 scholarships = data.get('scholarships', [])
 if scholarships:
     st.subheader(f"📋 Your Scholarships ({len(scholarships)})")
@@ -601,7 +576,6 @@ if scholarships:
                 icons = {"active": "🟢 Active", "submitted": "📤 Submitted", "accepted": "✅ Accepted", "rejected": "❌ Rejected"}
                 st.write(icons.get(status, status))
             with col3:
-                # Individual Word Export Button
                 if st.button("📄 Export Word", key=f"s_export_{idx}"):
                     word_content = generate_individual_word(s, "scholarship")
                     st.session_state[f"word_export_s_{idx}"] = word_content
@@ -630,15 +604,12 @@ if scholarships:
                     save_data(data)
                     st.rerun()
             
-            # Show individual export if exists
             if st.session_state.get(f"word_export_s_{idx}"):
                 st.markdown(f"""
                 <div class="word-export">
                     {st.session_state[f"word_export_s_{idx}"]}
                 </div>
                 """, unsafe_allow_html=True)
-                if st.button("📋 Copy to Clipboard", key=f"s_copy_{idx}"):
-                    st.info("✅ Select text above and press Ctrl+C")
             
             st.divider()
 
@@ -693,7 +664,7 @@ with st.expander("➕ Add New Job", expanded=False):
         st.session_state.j_saving = False
         st.rerun()
 
-# Display Jobs with INDIVIDUAL EXPORT
+# Display Jobs
 jobs = data.get('jobs', [])
 if jobs:
     st.subheader(f"📋 Your Jobs ({len(jobs)})")
@@ -715,7 +686,6 @@ if jobs:
                 icons = {"active": "🟢 Active", "submitted": "📤 Submitted", "accepted": "✅ Accepted", "rejected": "❌ Rejected"}
                 st.write(icons.get(status, status))
             with col3:
-                # Individual Word Export Button
                 if st.button("📄 Export Word", key=f"j_export_{idx}"):
                     word_content = generate_individual_word(j, "job")
                     st.session_state[f"word_export_j_{idx}"] = word_content
@@ -744,21 +714,18 @@ if jobs:
                     save_data(data)
                     st.rerun()
             
-            # Show individual export if exists
             if st.session_state.get(f"word_export_j_{idx}"):
                 st.markdown(f"""
                 <div class="word-export">
                     {st.session_state[f"word_export_j_{idx}"]}
                 </div>
                 """, unsafe_allow_html=True)
-                if st.button("📋 Copy to Clipboard", key=f"j_copy_{idx}"):
-                    st.info("✅ Select text above and press Ctrl+C")
             
             st.divider()
 
 st.markdown("---")
 
-# ========== NOTES SECTION ==========
+# ========== NOTES ==========
 
 st.header("📝 Quick Notes")
 
@@ -802,33 +769,30 @@ if notes:
 
 st.markdown("---")
 
-# ========== COMPLETE HISTORY ==========
+# ========== HISTORY ==========
 
 st.header("📜 Complete History Log")
 
-# Full history export
-if data.get('history'):
+if st.button("📄 Export All History as Word"):
     full_history = "📜 COMPLETE HISTORY\n"
     full_history += "=" * 60 + "\n"
-    for h in reversed(data['history']):
+    for h in reversed(data.get('history', [])):
         full_history += f"{h.get('timestamp', '')} - {h.get('action', '')}: {h.get('name', '')}\n"
         if h.get('details'): full_history += f"  Details: {h.get('details')}\n"
     full_history += "=" * 60 + "\n"
-    full_history += f"Total: {len(data['history'])} actions"
-    
-    if st.button("📄 Export Full History as Word"):
-        st.session_state.full_history_export = full_history
-        st.rerun()
-    
-    if st.session_state.get('full_history_export'):
-        st.markdown(f"""
-        <div class="word-export">
-            {st.session_state.full_history_export}
-        </div>
-        """, unsafe_allow_html=True)
-        if st.button("📋 Copy Full History"):
-            st.info("✅ Select text above and press Ctrl+C")
-    
+    full_history += f"Total: {len(data.get('history', []))} actions"
+    st.session_state.full_history_export = full_history
+    st.rerun()
+
+if st.session_state.get('full_history_export'):
+    st.markdown(f"""
+    <div class="word-export">
+        {st.session_state.full_history_export}
+    </div>
+    """, unsafe_allow_html=True)
+    st.info("📋 Select text above and press Ctrl+C to copy")
+
+if data.get('history'):
     st.subheader("📋 History Timeline")
     for h in reversed(data['history']):
         emoji = {"Added": "➕", "Submitted": "📤", "Accepted": "✅", "Rejected": "❌", "Deleted": "🗑️", "Updated CV": "📄"}.get(h.get('action', ''), "📌")
