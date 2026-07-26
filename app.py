@@ -4,20 +4,26 @@ import json
 import base64
 import os
 from datetime import datetime
-from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
+# ========== GET TOKEN FROM GITHUB SECRETS ==========
+
+# For GitHub Cloud
+try:
+    TOKEN = st.secrets["GITHUB_TOKEN"]
+except:
+    # For local testing (if you have .env file)
+    from dotenv import load_dotenv
+    load_dotenv()
+    TOKEN = os.getenv("GITHUB_TOKEN")
 
 # Your GitHub info
-TOKEN = os.getenv("GITHUB_TOKEN")
-USER = os.getenv("GITHUB_USER", "digitalirrigation-lgtm")
-REPO = os.getenv("GITHUB_REPO", "dagi")
-FILE = os.getenv("GITHUB_FILE", "data.json")
+USER = "digitalirrigation-lgtm"
+REPO = "dagi"
+FILE = "data.json"
 
-# Check if token exists
+# Check if token works
 if not TOKEN:
-    st.error("❌ OOPS! No token found! Please create .env file!")
+    st.error("❌ OOPS! No token found! Add GITHUB_TOKEN to secrets!")
     st.stop()
 
 st.set_page_config(page_title="📚 Dagi Tracker", layout="wide")
@@ -121,7 +127,7 @@ with st.sidebar:
     
     st.markdown("---")
     st.caption("📦 All data saved permanently on GitHub")
-    st.caption("🔗 github.com/digitalirrigation-lgtm/dagi")
+    st.caption(f"🔗 github.com/{USER}/{REPO}")
 
 # ========== MASTER CV ==========
 
