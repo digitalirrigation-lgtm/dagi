@@ -43,6 +43,17 @@
       "link": "https://ethiojobs.net/job/X8CfzfPK2w-storekeeper",
       "status": "submitted",
       "createdAt": "2026-07-26 16:24:51"
+    },
+    {
+      "id": "1785084085.806465",
+      "name": "fke",
+      "uni": "horn",
+      "deadline": "2026-07-28",
+      "country": "",
+      "notes": "missa",
+      "link": "https://ethiojobs.net/job/X8CfzfPK2w-storekeeper",
+      "status": "active",
+      "createdAt": "2026-07-26 16:41:25"
     }
   ],
   "jobs": [
@@ -193,6 +204,14 @@
       "action": "Submitted",
       "type": "Scholarship",
       "name": "jooo",
+      "details": ""
+    },
+    {
+      "timestamp": "2026-07-26 16:41:25",
+      "date": "2026-07-26",
+      "action": "Added",
+      "type": "Scholarship",
+      "name": "fke",
       "details": ""
     }
   ],
