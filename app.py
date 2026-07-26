@@ -5,8 +5,6 @@ import base64
 from datetime import datetime, timedelta
 import time
 import pandas as pd
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 
 # ========== GET TOKEN FROM STREAMLIT SECRETS ==========
 
@@ -15,12 +13,10 @@ try:
 except:
     TOKEN = None
 
-# Your GitHub info
 USER = "digitalirrigation-lgtm"
 REPO = "dagi"
 FILE = "data.json"
 
-# Check if token works
 if not TOKEN:
     st.error("❌ No token found! Add TOKEN to Streamlit secrets.")
     st.stop()
@@ -35,42 +31,51 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-    /* 5S Colors */
-    .ss-sort { background: #4CAF50; color: white; padding: 10px; border-radius: 10px; margin: 5px 0; }
-    .ss-set { background: #2196F3; color: white; padding: 10px; border-radius: 10px; margin: 5px 0; }
-    .ss-shine { background: #FF9800; color: white; padding: 10px; border-radius: 10px; margin: 5px 0; }
-    .ss-standardize { background: #9C27B0; color: white; padding: 10px; border-radius: 10px; margin: 5px 0; }
-    .ss-sustain { background: #f44336; color: white; padding: 10px; border-radius: 10px; margin: 5px 0; }
+    .ss-sort { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 15px; margin: 5px 0; text-align: center; }
+    .ss-set { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 15px; border-radius: 15px; margin: 5px 0; text-align: center; }
+    .ss-shine { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 15px; border-radius: 15px; margin: 5px 0; text-align: center; }
+    .ss-standardize { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 15px; border-radius: 15px; margin: 5px 0; text-align: center; }
+    .ss-sustain { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; padding: 15px; border-radius: 15px; margin: 5px 0; text-align: center; }
     
-    .deadline-red { background: #dc3545; color: white; padding: 3px 12px; border-radius: 20px; font-weight: bold; }
-    .deadline-yellow { background: #ffc107; color: black; padding: 3px 12px; border-radius: 20px; font-weight: bold; }
-    .deadline-green { background: #28a745; color: white; padding: 3px 12px; border-radius: 20px; font-weight: bold; }
+    .deadline-red { background: #dc3545; color: white; padding: 5px 15px; border-radius: 25px; font-weight: bold; display: inline-block; animation: blink 1s infinite; }
+    .deadline-yellow { background: #ffc107; color: black; padding: 5px 15px; border-radius: 25px; font-weight: bold; display: inline-block; }
+    .deadline-green { background: #28a745; color: white; padding: 5px 15px; border-radius: 25px; font-weight: bold; display: inline-block; }
+    
+    @keyframes blink {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
     
     .history-item { 
-        padding: 10px; 
+        padding: 12px; 
         background: #f8f9fa; 
-        border-radius: 8px; 
+        border-radius: 10px; 
         margin: 5px 0;
-        border-left: 4px solid #007bff;
+        border-left: 5px solid #007bff;
+        transition: all 0.3s;
     }
+    .history-item:hover { background: #e9ecef; transform: translateX(5px); }
     
     .word-export {
-        background: #f0f0f0;
-        padding: 20px;
-        border-radius: 10px;
-        border: 2px dashed #007bff;
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        border: 3px solid #007bff;
         white-space: pre-wrap;
         font-family: 'Arial', sans-serif;
-        max-height: 400px;
+        min-height: 300px;
+        max-height: 600px;
         overflow-y: auto;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
     
-    .stats-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
+    .note-card {
+        background: #fff3cd;
         padding: 15px;
-        border-radius: 15px;
-        text-align: center;
+        border-radius: 10px;
+        border-left: 5px solid #ffc107;
+        margin: 10px 0;
     }
     
     .button-locked {
@@ -78,75 +83,77 @@ st.markdown("""
         pointer-events: none;
     }
     
-    /* Progress bar animation */
-    @keyframes progress {
-        from { width: 0%; }
-        to { width: 100%; }
+    .stButton button {
+        width: 100%;
+        border-radius: 10px;
+        font-weight: bold;
+        transition: all 0.3s;
     }
+    .stButton button:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .success-box {
+        padding: 12px;
+        background: #d4edda;
+        border-radius: 10px;
+        border-left: 5px solid #28a745;
+        margin: 10px 0;
+    }
+    .danger-box {
+        padding: 12px;
+        background: #f8d7da;
+        border-radius: 10px;
+        border-left: 5px solid #dc3545;
+        margin: 10px 0;
+    }
+    
+    .stats-card {
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        text-align: center;
+        border: 2px solid #e9ecef;
+    }
+    .stats-number { font-size: 2.5em; font-weight: bold; color: #007bff; }
+    .stats-label { color: #6c757d; font-size: 0.9em; }
 </style>
 """, unsafe_allow_html=True)
 
 st.title("📚 My Scholarship & Job Tracker Pro")
-st.caption("🔒 5S Methodology | 💾 Permanent GitHub Storage | 📊 Real-time Progress")
+st.caption("🔒 Zero-Duplication | 💾 Permanent GitHub Storage | 📊 Live Dashboard")
 
 # ========== GITHUB FUNCTIONS ==========
 
 def get_data():
-    """Fetch data from GitHub"""
     url = f"https://api.github.com/repos/{USER}/{REPO}/contents/{FILE}"
-    headers = {
-        'Authorization': f'token {TOKEN}',
-        'Accept': 'application/vnd.github.v3+json'
-    }
+    headers = {'Authorization': f'token {TOKEN}', 'Accept': 'application/vnd.github.v3+json'}
     
     try:
         response = requests.get(url, headers=headers)
-        
         if response.status_code == 200:
             content = response.json()['content']
             decoded = base64.b64decode(content).decode('utf-8')
             data = json.loads(decoded)
             
-            # Make sure all fields exist
-            if 'scholarships' not in data:
-                data['scholarships'] = []
-            if 'jobs' not in data:
-                data['jobs'] = []
-            if 'masterCV' not in data:
-                data['masterCV'] = {"title": "My Master CV", "content": "", "lastUpdated": ""}
-            if 'history' not in data:
-                data['history'] = []
-            if 'wordExport' not in data:
-                data['wordExport'] = []
-            
+            if 'scholarships' not in data: data['scholarships'] = []
+            if 'jobs' not in data: data['jobs'] = []
+            if 'masterCV' not in data: data['masterCV'] = {"title": "My Master CV", "content": "", "lastUpdated": ""}
+            if 'history' not in data: data['history'] = []
+            if 'notes' not in data: data['notes'] = []
             return data
         else:
-            default_data = {
-                "scholarships": [],
-                "jobs": [],
-                "masterCV": {"title": "My Master CV", "content": "", "lastUpdated": ""},
-                "history": [],
-                "wordExport": []
-            }
+            default_data = {"scholarships": [], "jobs": [], "masterCV": {"title": "My Master CV", "content": "", "lastUpdated": ""}, "history": [], "notes": []}
             save_data(default_data)
             return default_data
-            
-    except Exception as e:
-        return {
-            "scholarships": [],
-            "jobs": [],
-            "masterCV": {"title": "My Master CV", "content": "", "lastUpdated": ""},
-            "history": [],
-            "wordExport": []
-        }
+    except:
+        return {"scholarships": [], "jobs": [], "masterCV": {"title": "My Master CV", "content": "", "lastUpdated": ""}, "history": [], "notes": []}
 
 def save_data(data):
-    """Save data to GitHub"""
     url = f"https://api.github.com/repos/{USER}/{REPO}/contents/{FILE}"
-    headers = {
-        'Authorization': f'token {TOKEN}',
-        'Accept': 'application/vnd.github.v3+json'
-    }
+    headers = {'Authorization': f'token {TOKEN}', 'Accept': 'application/vnd.github.v3+json'}
     
     try:
         sha = None
@@ -157,54 +164,27 @@ def save_data(data):
         except:
             pass
         
-        content = base64.b64encode(
-            json.dumps(data, indent=2, default=str).encode('utf-8')
-        ).decode('utf-8')
-        
-        payload = {
-            'message': f'Update - {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}',
-            'content': content,
-            'branch': 'main'
-        }
-        
-        if sha:
-            payload['sha'] = sha
+        content = base64.b64encode(json.dumps(data, indent=2, default=str).encode('utf-8')).decode('utf-8')
+        payload = {'message': f'Update - {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}', 'content': content, 'branch': 'main'}
+        if sha: payload['sha'] = sha
         
         response = requests.put(url, headers=headers, json=payload, timeout=10)
         return response.status_code in [200, 201]
-            
-    except Exception as e:
+    except:
         return False
 
 def add_history(data, action, item_type, item_name, details=""):
-    """Add entry to history log"""
-    if 'history' not in data:
-        data['history'] = []
-    
-    history_entry = {
+    if 'history' not in data: data['history'] = []
+    data['history'].append({
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "action": action,
         "type": item_type,
         "name": item_name,
         "details": details
-    }
-    data['history'].append(history_entry)
-    return data
-
-def add_word_export(data, text):
-    """Add to word export history"""
-    if 'wordExport' not in data:
-        data['wordExport'] = []
-    
-    word_entry = {
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "content": text
-    }
-    data['wordExport'].append(word_entry)
+    })
     return data
 
 def check_duplicate(data, item_type, name):
-    """Check if item already exists"""
     items = data.get(item_type, [])
     for item in items:
         if item.get('name', '').lower() == name.lower():
@@ -212,18 +192,15 @@ def check_duplicate(data, item_type, name):
     return False
 
 def get_deadline_status(deadline_str):
-    """Get deadline status with color coding"""
     if not deadline_str:
         return {"label": "No deadline", "class": "deadline-green"}
-    
     try:
         deadline = datetime.strptime(deadline_str, '%Y-%m-%d')
         days_left = (deadline - datetime.now()).days
-        
         if days_left < 0:
             return {"label": f"⏰ EXPIRED ({abs(days_left)} days ago)", "class": "deadline-red"}
         elif days_left <= 5:
-            return {"label": f"🔴 {days_left} days left", "class": "deadline-red"}
+            return {"label": f"🔴 {days_left} days left - URGENT!", "class": "deadline-red"}
         elif days_left <= 20:
             return {"label": f"🟡 {days_left} days left", "class": "deadline-yellow"}
         else:
@@ -235,70 +212,10 @@ def get_deadline_status(deadline_str):
 
 if 'data' not in st.session_state:
     st.session_state.data = get_data()
-    st.session_state.save_clicked = False
+    st.session_state.s_saving = False
+    st.session_state.j_saving = False
 
 data = st.session_state.data
-
-# ========== 5S DASHBOARD ==========
-
-st.header("🏭 5S Dashboard - Status")
-
-col1, col2, col3, col4, col5 = st.columns(5)
-
-with col1:
-    st.markdown("""
-    <div class="ss-sort">
-        <b>📋 SORT</b><br>
-        <small>Keep only essentials</small><br>
-        <b>Active: {}</b>
-    </div>
-    """.format(len([s for s in data.get('scholarships', []) if s.get('status') == 'active']) +
-               len([j for j in data.get('jobs', []) if j.get('status') == 'active'])), 
-    unsafe_allow_html=True)
-
-with col2:
-    st.markdown("""
-    <div class="ss-set">
-        <b>📌 SET</b><br>
-        <small>Organized tracking</small><br>
-        <b>Total: {}</b>
-    </div>
-    """.format(len(data.get('scholarships', [])) + len(data.get('jobs', []))), 
-    unsafe_allow_html=True)
-
-with col3:
-    st.markdown("""
-    <div class="ss-shine">
-        <b>✨ SHINE</b><br>
-        <small>Clean & updated</small><br>
-        <b>Submitted: {}</b>
-    </div>
-    """.format(len([s for s in data.get('scholarships', []) if s.get('status') == 'submitted']) +
-               len([j for j in data.get('jobs', []) if j.get('status') == 'submitted'])), 
-    unsafe_allow_html=True)
-
-with col4:
-    st.markdown("""
-    <div class="ss-standardize">
-        <b>📏 STANDARDIZE</b><br>
-        <small>Consistent process</small><br>
-        <b>Accepted: {}</b>
-    </div>
-    """.format(len([s for s in data.get('scholarships', []) if s.get('status') == 'accepted']) +
-               len([j for j in data.get('jobs', []) if j.get('status') == 'accepted'])), 
-    unsafe_allow_html=True)
-
-with col5:
-    st.markdown("""
-    <div class="ss-sustain">
-        <b>♻️ SUSTAIN</b><br>
-        <small>Continuous progress</small><br>
-        <b>History: {}</b>
-    </div>
-    """.format(len(data.get('history', []))), 
-    unsafe_allow_html=True)
-
-st.markdown("---")
 
 # ========== SIDEBAR ==========
 
@@ -309,10 +226,11 @@ with st.sidebar:
     st.markdown("---")
     
     st.subheader("📊 Quick Stats")
-    total_scholarships = len(data.get('scholarships', []))
-    total_jobs = len(data.get('jobs', []))
-    st.metric("🎓 Scholarships", total_scholarships)
-    st.metric("💼 Jobs", total_jobs)
+    total_s = len(data.get('scholarships', []))
+    total_j = len(data.get('jobs', []))
+    st.metric("🎓 Scholarships", total_s)
+    st.metric("💼 Jobs", total_j)
+    st.metric("📝 Notes", len(data.get('notes', [])))
     
     st.markdown("---")
     
@@ -322,7 +240,7 @@ with st.sidebar:
         for h in history[-3:]:
             st.markdown(f"""
             <div class="history-item">
-                <small>{h.get('timestamp', '')}</small><br>
+                <small>{h.get('timestamp', '')[:16]}</small><br>
                 <b>{h.get('action', '')}</b> {h.get('name', '')}
             </div>
             """, unsafe_allow_html=True)
@@ -331,68 +249,247 @@ with st.sidebar:
     st.caption("📦 Data saved on GitHub")
     st.caption(f"🔗 github.com/{USER}/{REPO}")
 
+# ========== 5S DASHBOARD - DYNAMIC ==========
+
+st.header("🏭 5S Dashboard - Live Status")
+
+active_count = len([s for s in data.get('scholarships', []) if s.get('status') == 'active']) + \
+               len([j for j in data.get('jobs', []) if j.get('status') == 'active'])
+total_count = len(data.get('scholarships', [])) + len(data.get('jobs', []))
+submitted_count = len([s for s in data.get('scholarships', []) if s.get('status') == 'submitted']) + \
+                  len([j for j in data.get('jobs', []) if j.get('status') == 'submitted'])
+accepted_count = len([s for s in data.get('scholarships', []) if s.get('status') == 'accepted']) + \
+                 len([j for j in data.get('jobs', []) if j.get('status') == 'accepted'])
+history_count = len(data.get('history', []))
+
+col1, col2, col3, col4, col5 = st.columns(5)
+
+with col1:
+    st.markdown(f"""
+    <div class="ss-sort">
+        <b>📋 SORT</b><br>
+        <small>Active Items</small><br>
+        <b style="font-size: 2em;">{active_count}</b>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col2:
+    st.markdown(f"""
+    <div class="ss-set">
+        <b>📌 SET</b><br>
+        <small>Total Items</small><br>
+        <b style="font-size: 2em;">{total_count}</b>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col3:
+    st.markdown(f"""
+    <div class="ss-shine">
+        <b>✨ SHINE</b><br>
+        <small>Submitted</small><br>
+        <b style="font-size: 2em;">{submitted_count}</b>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col4:
+    st.markdown(f"""
+    <div class="ss-standardize">
+        <b>📏 STANDARDIZE</b><br>
+        <small>Accepted</small><br>
+        <b style="font-size: 2em;">{accepted_count}</b>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col5:
+    st.markdown(f"""
+    <div class="ss-sustain">
+        <b>♻️ SUSTAIN</b><br>
+        <small>History</small><br>
+        <b style="font-size: 2em;">{history_count}</b>
+    </div>
+    """, unsafe_allow_html=True)
+
+st.markdown("---")
+
+# ========== PROGRESS DASHBOARD ==========
+
+st.subheader("📊 Progress Dashboard")
+
+if total_count > 0:
+    col1, col2, col3, col4 = st.columns(4)
+    completion = int((submitted_count + accepted_count) / total_count * 100) if total_count > 0 else 0
+    
+    with col1:
+        st.markdown(f"""
+        <div class="stats-card">
+            <div class="stats-number">{total_count}</div>
+            <div class="stats-label">📊 Total Items</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown(f"""
+        <div class="stats-card">
+            <div class="stats-number">{completion}%</div>
+            <div class="stats-label">✅ Completion Rate</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        pending = total_count - submitted_count - accepted_count
+        st.markdown(f"""
+        <div class="stats-card">
+            <div class="stats-number">{pending}</div>
+            <div class="stats-label">⏳ Pending</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col4:
+        st.markdown(f"""
+        <div class="stats-card">
+            <div class="stats-number">{accepted_count}</div>
+            <div class="stats-label">🎯 Achieved</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Progress bar
+    st.progress(completion / 100)
+    st.caption(f"📈 Progress: {completion}% complete")
+
+st.markdown("---")
+
 # ========== WORD FORMAT EXPORT ==========
 
-st.header("📄 Word Format Export")
+st.header("📄 Word Format Export - Copy & Paste Ready")
 
-if st.button("📝 Generate Word Format Report", type="primary"):
-    word_content = "========================================\n"
-    word_content += "📚 SCHOLARSHIP & JOB TRACKER REPORT\n"
-    word_content += f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
-    word_content += "========================================\n\n"
-    
-    word_content += "🎓 SCHOLARSHIPS\n"
-    word_content += "-" * 40 + "\n"
-    for s in data.get('scholarships', []):
-        word_content += f"• {s.get('name', '')}\n"
-        word_content += f"  University: {s.get('uni', 'N/A')}\n"
-        word_content += f"  Deadline: {s.get('deadline', 'N/A')}\n"
-        word_content += f"  Status: {s.get('status', 'active')}\n"
-        if s.get('notes'):
-            word_content += f"  Notes: {s.get('notes')}\n"
-        word_content += "\n"
-    
-    word_content += "\n💼 JOBS\n"
-    word_content += "-" * 40 + "\n"
-    for j in data.get('jobs', []):
-        word_content += f"• {j.get('title', '')}\n"
-        word_content += f"  Company: {j.get('company', 'N/A')}\n"
-        word_content += f"  Deadline: {j.get('deadline', 'N/A')}\n"
-        word_content += f"  Status: {j.get('status', 'active')}\n"
-        if j.get('notes'):
-            word_content += f"  Notes: {j.get('notes')}\n"
-        word_content += "\n"
-    
-    word_content += "📜 HISTORY LOG\n"
-    word_content += "-" * 40 + "\n"
-    for h in data.get('history', []):
-        word_content += f"{h.get('timestamp', '')} - {h.get('action', '')}: {h.get('name', '')}\n"
-    
-    word_content += "\n========================================\n"
-    word_content += "📊 SUMMARY STATISTICS\n"
-    word_content += "========================================\n"
-    word_content += f"Total Scholarships: {len(data.get('scholarships', []))}\n"
-    word_content += f"Total Jobs: {len(data.get('jobs', []))}\n"
-    word_content += f"Total Actions: {len(data.get('history', []))}\n"
-    word_content += f"Active: {len([s for s in data.get('scholarships', []) if s.get('status') == 'active']) + len([j for j in data.get('jobs', []) if j.get('status') == 'active'])}\n"
-    word_content += f"Submitted: {len([s for s in data.get('scholarships', []) if s.get('status') == 'submitted']) + len([j for j in data.get('jobs', []) if j.get('status') == 'submitted'])}\n"
-    word_content += f"Accepted: {len([s for s in data.get('scholarships', []) if s.get('status') == 'accepted']) + len([j for j in data.get('jobs', []) if j.get('status') == 'accepted'])}\n"
-    
-    data = add_word_export(data, word_content)
-    save_data(data)
-    
-    st.session_state.word_content = word_content
-    st.rerun()
+col1, col2 = st.columns([2, 1])
+
+with col1:
+    if st.button("📝 Generate Full Report", type="primary", use_container_width=True):
+        word_content = "=" * 60 + "\n"
+        word_content += "📚 SCHOLARSHIP & JOB TRACKER REPORT\n"
+        word_content += f"📅 Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+        word_content += "=" * 60 + "\n\n"
+        
+        word_content += "🎓 SCHOLARSHIPS\n"
+        word_content += "-" * 40 + "\n"
+        if data.get('scholarships'):
+            for s in data['scholarships']:
+                word_content += f"• {s.get('name', '')}\n"
+                word_content += f"  University: {s.get('uni', 'N/A')}\n"
+                word_content += f"  Deadline: {s.get('deadline', 'N/A')}\n"
+                word_content += f"  Status: {s.get('status', 'active')}\n"
+                if s.get('notes'): word_content += f"  Notes: {s.get('notes')}\n"
+                word_content += "\n"
+        else:
+            word_content += "No scholarships added yet.\n\n"
+        
+        word_content += "💼 JOBS\n"
+        word_content += "-" * 40 + "\n"
+        if data.get('jobs'):
+            for j in data['jobs']:
+                word_content += f"• {j.get('title', '')}\n"
+                word_content += f"  Company: {j.get('company', 'N/A')}\n"
+                word_content += f"  Deadline: {j.get('deadline', 'N/A')}\n"
+                word_content += f"  Status: {j.get('status', 'active')}\n"
+                if j.get('notes'): word_content += f"  Notes: {j.get('notes')}\n"
+                word_content += "\n"
+        else:
+            word_content += "No jobs added yet.\n\n"
+        
+        word_content += "📝 NOTES\n"
+        word_content += "-" * 40 + "\n"
+        if data.get('notes'):
+            for n in data['notes']:
+                word_content += f"• {n.get('content', '')}\n"
+                word_content += f"  Added: {n.get('timestamp', '')}\n\n"
+        else:
+            word_content += "No notes added yet.\n\n"
+        
+        word_content += "📜 HISTORY LOG\n"
+        word_content += "-" * 40 + "\n"
+        if data.get('history'):
+            for h in data['history']:
+                word_content += f"{h.get('timestamp', '')} - {h.get('action', '')}: {h.get('name', '')}\n"
+        else:
+            word_content += "No history yet.\n"
+        
+        word_content += "\n" + "=" * 60 + "\n"
+        word_content += "📊 SUMMARY STATISTICS\n"
+        word_content += "=" * 60 + "\n"
+        word_content += f"Total Scholarships: {len(data.get('scholarships', []))}\n"
+        word_content += f"Total Jobs: {len(data.get('jobs', []))}\n"
+        word_content += f"Total Notes: {len(data.get('notes', []))}\n"
+        word_content += f"Total Actions: {len(data.get('history', []))}\n"
+        word_content += f"Active: {active_count}\n"
+        word_content += f"Submitted: {submitted_count}\n"
+        word_content += f"Accepted: {accepted_count}\n"
+        
+        st.session_state.word_content = word_content
+        st.rerun()
+
+with col2:
+    if st.button("📋 Copy All", type="secondary", use_container_width=True):
+        st.info("✅ Ready to copy! Select all text below and press Ctrl+C")
 
 if 'word_content' in st.session_state:
+    st.markdown("---")
+    st.subheader("📋 Your Report (Select all and Copy)")
     st.markdown(f"""
-    <div class="word-export">
+    <div class="word-export" id="word-content">
         {st.session_state.word_content}
     </div>
     """, unsafe_allow_html=True)
+    st.caption("💡 Tip: Click inside the box, press Ctrl+A to select all, then Ctrl+C to copy")
+
+st.markdown("---")
+
+# ========== NOTES SECTION ==========
+
+st.header("📝 Quick Notes - Save Everything")
+
+with st.expander("➕ Add New Note", expanded=False):
+    note_content = st.text_area("📝 Write your note here", height=150, key="note_input")
     
-    if st.button("📋 Copy to Clipboard"):
-        st.write("✅ Ready to copy! Select all text above and press Ctrl+C")
+    if st.button("💾 Save Note", type="primary"):
+        if note_content:
+            if 'notes' not in data: data['notes'] = []
+            data['notes'].append({
+                "id": str(datetime.now().timestamp()),
+                "content": note_content,
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            })
+            data = add_history(data, "Added Note", "Note", note_content[:30] + "...")
+            if save_data(data):
+                st.success("✅ Note Saved Permanently!")
+                time.sleep(0.5)
+                st.rerun()
+        else:
+            st.error("❌ Please enter some text!")
+
+# Display notes
+notes = data.get('notes', [])
+if notes:
+    st.subheader(f"📋 Your Notes ({len(notes)})")
+    for idx, n in enumerate(reversed(notes)):
+        with st.container():
+            col1, col2 = st.columns([6, 1])
+            with col1:
+                st.markdown(f"""
+                <div class="note-card">
+                    <b>📝 {n.get('content', '')}</b><br>
+                    <small>🕐 {n.get('timestamp', '')}</small>
+                </div>
+                """, unsafe_allow_html=True)
+            with col2:
+                if st.button("🗑️", key=f"note_del_{idx}"):
+                    data['notes'].remove(n)
+                    save_data(data)
+                    st.rerun()
+else:
+    st.info("No notes yet. Add your first note above!")
+
+st.markdown("---")
 
 # ========== MASTER CV ==========
 
@@ -400,7 +497,7 @@ st.header("📄 Master CV")
 
 with st.expander("✏️ Edit Your Master CV", expanded=False):
     cv_title = st.text_input("CV Title", value=data.get('masterCV', {}).get('title', 'My Master CV'))
-    cv_content = st.text_area("📝 Paste Your CV", value=data.get('masterCV', {}).get('content', ''), height=200)
+    cv_content = st.text_area("📝 Paste Your CV Here", value=data.get('masterCV', {}).get('content', ''), height=200)
     
     if st.button("💾 Save CV", type="primary"):
         data['masterCV']['title'] = cv_title
@@ -412,11 +509,15 @@ with st.expander("✏️ Edit Your Master CV", expanded=False):
             time.sleep(0.5)
             st.rerun()
 
+if data.get('masterCV', {}).get('content'):
+    st.info(f"✅ CV saved: {data['masterCV'].get('lastUpdated', 'Never')}")
+
+st.markdown("---")
+
 # ========== SCHOLARSHIPS ==========
 
 st.header("🎓 Scholarships")
 
-# Add Scholarship with button lock
 with st.expander("➕ Add New Scholarship", expanded=False):
     if not st.session_state.get('s_saving', False):
         col1, col2 = st.columns(2)
@@ -450,15 +551,15 @@ with st.expander("➕ Add New Scholarship", expanded=False):
                     data['scholarships'].append(new_s)
                     data = add_history(data, "Added", "Scholarship", name)
                     if save_data(data):
-                        st.success(f"✅ '{name}' Saved!")
-                        time.sleep(0.5)
+                        st.success(f"✅ '{name}' Saved Permanently!")
+                        time.sleep(1)
                         st.session_state.s_saving = False
                         st.rerun()
             else:
                 st.error("❌ Name and Deadline are required!")
     else:
-        st.info("⏳ Saving... Please wait 2 seconds")
-        time.sleep(2)
+        st.info("⏳ Saving... Please wait")
+        time.sleep(1)
         st.session_state.s_saving = False
         st.rerun()
 
@@ -466,28 +567,23 @@ with st.expander("➕ Add New Scholarship", expanded=False):
 scholarships = data.get('scholarships', [])
 if scholarships:
     st.subheader(f"📋 Your Scholarships ({len(scholarships)})")
-    
     sorted_items = sorted(scholarships, key=lambda x: x.get('deadline', '9999-12-31'))
     
     for idx, s in enumerate(sorted_items):
         deadline_status = get_deadline_status(s.get('deadline'))
-        
         with st.container():
             col1, col2, col3 = st.columns([3, 2, 1])
             with col1:
                 st.markdown(f"**{s.get('name', '')}**")
-                if s.get('uni'):
-                    st.caption(f"🏛️ {s.get('uni')}")
-                if s.get('country'):
-                    st.caption(f"🌍 {s.get('country')}")
-                if s.get('notes'):
-                    st.caption(f"📝 {s.get('notes')[:100]}")
+                if s.get('uni'): st.caption(f"🏛️ {s.get('uni')}")
+                if s.get('country'): st.caption(f"🌍 {s.get('country')}")
+                if s.get('notes'): st.caption(f"📝 {s.get('notes')[:100]}")
             with col2:
                 st.write(f"📅 {s.get('deadline', 'No deadline')}")
                 st.markdown(f"<span class='{deadline_status['class']}'>{deadline_status['label']}</span>", unsafe_allow_html=True)
                 status = s.get('status', 'active')
-                status_icons = {"active": "🟢 Active", "submitted": "📤 Submitted", "accepted": "✅ Accepted", "rejected": "❌ Rejected"}
-                st.write(status_icons.get(status, status))
+                icons = {"active": "🟢 Active", "submitted": "📤 Submitted", "accepted": "✅ Accepted", "rejected": "❌ Rejected"}
+                st.write(icons.get(status, status))
             with col3:
                 if s.get('status') == 'active':
                     if st.button("📤 Submit", key=f"s_sub_{idx}"):
@@ -513,11 +609,12 @@ if scholarships:
                     st.rerun()
             st.divider()
 
+st.markdown("---")
+
 # ========== JOBS ==========
 
 st.header("💼 Jobs")
 
-# Add Job with button lock
 with st.expander("➕ Add New Job", expanded=False):
     if not st.session_state.get('j_saving', False):
         col1, col2 = st.columns(2)
@@ -551,15 +648,15 @@ with st.expander("➕ Add New Job", expanded=False):
                     data['jobs'].append(new_j)
                     data = add_history(data, "Added", "Job", title)
                     if save_data(data):
-                        st.success(f"✅ '{title}' Saved!")
-                        time.sleep(0.5)
+                        st.success(f"✅ '{title}' Saved Permanently!")
+                        time.sleep(1)
                         st.session_state.j_saving = False
                         st.rerun()
             else:
                 st.error("❌ Title, Company, and Deadline are required!")
     else:
-        st.info("⏳ Saving... Please wait 2 seconds")
-        time.sleep(2)
+        st.info("⏳ Saving... Please wait")
+        time.sleep(1)
         st.session_state.j_saving = False
         st.rerun()
 
@@ -567,28 +664,23 @@ with st.expander("➕ Add New Job", expanded=False):
 jobs = data.get('jobs', [])
 if jobs:
     st.subheader(f"📋 Your Jobs ({len(jobs)})")
-    
     sorted_items = sorted(jobs, key=lambda x: x.get('deadline', '9999-12-31'))
     
     for idx, j in enumerate(sorted_items):
         deadline_status = get_deadline_status(j.get('deadline'))
-        
         with st.container():
             col1, col2, col3 = st.columns([3, 2, 1])
             with col1:
                 st.markdown(f"**{j.get('title', '')}**")
-                if j.get('company'):
-                    st.caption(f"🏢 {j.get('company')}")
-                if j.get('location'):
-                    st.caption(f"📍 {j.get('location')}")
-                if j.get('notes'):
-                    st.caption(f"📝 {j.get('notes')[:100]}")
+                if j.get('company'): st.caption(f"🏢 {j.get('company')}")
+                if j.get('location'): st.caption(f"📍 {j.get('location')}")
+                if j.get('notes'): st.caption(f"📝 {j.get('notes')[:100]}")
             with col2:
                 st.write(f"📅 {j.get('deadline', 'No deadline')}")
                 st.markdown(f"<span class='{deadline_status['class']}'>{deadline_status['label']}</span>", unsafe_allow_html=True)
                 status = j.get('status', 'active')
-                status_icons = {"active": "🟢 Active", "submitted": "📤 Submitted", "accepted": "✅ Accepted", "rejected": "❌ Rejected"}
-                st.write(status_icons.get(status, status))
+                icons = {"active": "🟢 Active", "submitted": "📤 Submitted", "accepted": "✅ Accepted", "rejected": "❌ Rejected"}
+                st.write(icons.get(status, status))
             with col3:
                 if j.get('status') == 'active':
                     if st.button("📤 Submit", key=f"j_sub_{idx}"):
@@ -614,127 +706,36 @@ if jobs:
                     st.rerun()
             st.divider()
 
-# ========== PROGRESS GRAPH ==========
+st.markdown("---")
 
-st.header("📈 Continuous Progress Graph")
+# ========== HISTORY LOG - FULL TEXT ==========
 
-if data.get('scholarships') or data.get('jobs'):
-    # Prepare data for graph
-    all_items = []
-    
-    for s in data.get('scholarships', []):
-        days_left = 0
-        try:
-            deadline = datetime.strptime(s.get('deadline', ''), '%Y-%m-%d')
-            days_left = (deadline - datetime.now()).days
-        except:
-            pass
-        
-        all_items.append({
-            'name': s.get('name', 'Unknown'),
-            'type': 'Scholarship',
-            'deadline': s.get('deadline', ''),
-            'days_left': days_left,
-            'status': s.get('status', 'active')
-        })
-    
-    for j in data.get('jobs', []):
-        days_left = 0
-        try:
-            deadline = datetime.strptime(j.get('deadline', ''), '%Y-%m-%d')
-            days_left = (deadline - datetime.now()).days
-        except:
-            pass
-        
-        all_items.append({
-            'name': j.get('title', 'Unknown'),
-            'type': 'Job',
-            'deadline': j.get('deadline', ''),
-            'days_left': days_left,
-            'status': j.get('status', 'active')
-        })
-    
-    if all_items:
-        df = pd.DataFrame(all_items)
-        df = df.sort_values('days_left')
-        
-        fig = make_subplots(rows=2, cols=1, 
-                            subplot_titles=('📊 Progress Over Time', '📈 Distribution by Status'),
-                            vertical_spacing=0.2)
-        
-        # Line graph for progress
-        colors = {'active': '#4CAF50', 'submitted': '#FF9800', 'accepted': '#2196F3', 'rejected': '#f44336'}
-        df['color'] = df['status'].map(colors)
-        
-        fig.add_trace(
-            go.Scatter(
-                x=df['name'],
-                y=df['days_left'],
-                mode='lines+markers+text',
-                name='Days Left',
-                text=df['days_left'],
-                textposition='top center',
-                marker=dict(size=12, color=df['color']),
-                line=dict(color='#667eea', width=3)
-            ),
-            row=1, col=1
-        )
-        
-        # Histogram
-        status_counts = df['status'].value_counts()
-        fig.add_trace(
-            go.Bar(
-                x=status_counts.index,
-                y=status_counts.values,
-                name='Status Count',
-                marker=dict(color=['#4CAF50', '#FF9800', '#2196F3', '#f44336'])
-            ),
-            row=2, col=1
-        )
-        
-        fig.update_layout(
-            height=600,
-            showlegend=True,
-            plot_bgcolor='rgba(0,0,0,0)',
-            paper_bgcolor='rgba(0,0,0,0)'
-        )
-        
-        fig.update_xaxes(title_text="Items", row=1, col=1)
-        fig.update_yaxes(title_text="Days Left", row=1, col=1)
-        fig.update_xaxes(title_text="Status", row=2, col=1)
-        fig.update_yaxes(title_text="Count", row=2, col=1)
-        
-        st.plotly_chart(fig, use_container_width=True)
-
-# ========== HISTORY LOG ==========
-
-st.header("📜 Complete History Log")
+st.header("📜 Complete History Log - All Actions")
 
 history = data.get('history', [])
 if history:
-    # Show only history entries (no word exports)
-    history_only = [h for h in history if not h.get('action', '').startswith('Word')]
+    # Create full text version for copy
+    history_text = "📜 COMPLETE HISTORY LOG\n"
+    history_text += "=" * 50 + "\n"
+    for h in reversed(history):
+        history_text += f"{h.get('timestamp', '')} - {h.get('action', '')}: {h.get('name', '')}\n"
+        if h.get('details'): history_text += f"  Details: {h.get('details')}\n"
+    history_text += "=" * 50 + "\n"
+    history_text += f"Total Actions: {len(history)}"
     
-    if history_only:
-        for h in reversed(history_only[-20:]):  # Show last 20
-            emoji = {
-                "Added": "➕",
-                "Submitted": "📤",
-                "Accepted": "✅",
-                "Rejected": "❌",
-                "Deleted": "🗑️",
-                "Updated CV": "📄"
-            }.get(h.get('action', ''), "📌")
-            
-            st.markdown(f"""
-            <div class="history-item">
-                <b>{emoji} {h.get('action', '')}</b> {h.get('type', '')}: <b>{h.get('name', '')}</b>
-                <br><small>🕐 {h.get('timestamp', '')}</small>
-                {f'<br><small>📝 {h.get("details", "")}</small>' if h.get('details') else ''}
-            </div>
-            """, unsafe_allow_html=True)
-    else:
-        st.info("No history yet")
+    st.text_area("📋 Full History (Copy this)", history_text, height=300)
+    
+    # Also show in nice format
+    st.subheader("📋 History Timeline")
+    for h in reversed(history):
+        emoji = {"Added": "➕", "Submitted": "📤", "Accepted": "✅", "Rejected": "❌", "Deleted": "🗑️", "Updated CV": "📄"}.get(h.get('action', ''), "📌")
+        st.markdown(f"""
+        <div class="history-item">
+            <b>{emoji} {h.get('action', '')}</b> {h.get('type', '')}: <b>{h.get('name', '')}</b>
+            <br><small>🕐 {h.get('timestamp', '')}</small>
+            {f'<br><small>📝 {h.get("details", "")}</small>' if h.get('details') else ''}
+        </div>
+        """, unsafe_allow_html=True)
 else:
     st.info("No history yet. Start adding scholarships and jobs!")
 
@@ -750,4 +751,4 @@ with col2:
 with col3:
     st.caption(f"🔗 github.com/{USER}/{REPO}")
 
-st.caption("✅ Zero-duplication | 🔒 Button lock | 📊 5S Dashboard | 💾 Permanent storage")
+st.caption("✅ Zero-duplication | 🔒 Button lock | 📊 Live Dashboard | 💾 Permanent storage")
