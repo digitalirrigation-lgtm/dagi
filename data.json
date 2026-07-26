@@ -56,6 +56,17 @@
       "link": "",
       "status": "active",
       "createdAt": "2026-07-26 15:55:46"
+    },
+    {
+      "id": "1785081401.501001",
+      "title": "3",
+      "company": "23",
+      "deadline": "2026-07-29",
+      "location": "",
+      "notes": "C43",
+      "link": "",
+      "status": "active",
+      "createdAt": "2026-07-26 15:56:41"
     }
   ],
   "masterCV": {
@@ -98,6 +109,13 @@
       "type": "Job",
       "name": "misge",
       "details": "Company: ta isha "
+    },
+    {
+      "timestamp": "2026-07-26 15:56:41",
+      "action": "Added",
+      "type": "Job",
+      "name": "3",
+      "details": "Company: 23"
     }
   ]
 }
