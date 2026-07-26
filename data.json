@@ -45,6 +45,17 @@
       "link": "",
       "status": "active",
       "createdAt": "2026-07-26 15:54:54"
+    },
+    {
+      "id": "1785081346.122733",
+      "title": "misge",
+      "company": "ta isha ",
+      "deadline": "2026-07-29",
+      "location": "",
+      "notes": "Company\n\nWe are a water and energy specialist company supplying equipment concentrated in five principal product sectors - pumps, water treatment, swimming pool, generators and solar. We import and distribute high quality equipment sourced from a number of manufacturers from Europe, Japan and Australia as well as Dayliff products.\n\nPosition: Storekeeper\n\nReporting to: Warehouse & Logistic Manager\n\nJob Description\n\nThe responsibilities of the job will be: -\n\nReceive and inspect incoming goods.\nMaintain accurate inventory records.\nIssue materials and supplies as requested.\nConduct regular stock counts and report discrepancies.\nKeep the store clean, organized, and secure.\nStores and inventory.\nLocal and import purchase reorder.\nCoordination of L",
+      "link": "",
+      "status": "active",
+      "createdAt": "2026-07-26 15:55:46"
     }
   ],
   "masterCV": {
@@ -76,6 +87,13 @@
     },
     {
       "timestamp": "2026-07-26 15:54:54",
+      "action": "Added",
+      "type": "Job",
+      "name": "misge",
+      "details": "Company: ta isha "
+    },
+    {
+      "timestamp": "2026-07-26 15:55:46",
       "action": "Added",
       "type": "Job",
       "name": "misge",
