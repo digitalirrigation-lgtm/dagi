@@ -52,7 +52,7 @@
       "country": "",
       "notes": "missa",
       "link": "https://ethiojobs.net/job/X8CfzfPK2w-storekeeper",
-      "status": "active",
+      "status": "submitted",
       "createdAt": "2026-07-26 16:41:25"
     }
   ],
@@ -210,6 +210,14 @@
       "timestamp": "2026-07-26 16:41:25",
       "date": "2026-07-26",
       "action": "Added",
+      "type": "Scholarship",
+      "name": "fke",
+      "details": ""
+    },
+    {
+      "timestamp": "2026-07-26 16:41:45",
+      "date": "2026-07-26",
+      "action": "Submitted",
       "type": "Scholarship",
       "name": "fke",
       "details": ""
