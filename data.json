@@ -54,6 +54,17 @@
       "link": "https://ethiojobs.net/job/X8CfzfPK2w-storekeeper",
       "status": "submitted",
       "createdAt": "2026-07-26 16:41:25"
+    },
+    {
+      "id": "1785088559.612274",
+      "name": "jjjo",
+      "uni": "kpokppk",
+      "deadline": "2026-07-26",
+      "country": "",
+      "notes": "yfyygyftydtrd",
+      "link": "",
+      "status": "active",
+      "createdAt": "2026-07-26 20:55:59"
     }
   ],
   "jobs": [
@@ -383,6 +394,14 @@
       "action": "Updated Minor CV",
       "type": "CV",
       "name": "ZEDAGIM TESFAYE TANTU - Minor CV",
+      "details": ""
+    },
+    {
+      "timestamp": "2026-07-26 20:55:59",
+      "date": "2026-07-26",
+      "action": "Added",
+      "type": "Scholarship",
+      "name": "jjjo",
       "details": ""
     }
   ],
