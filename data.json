@@ -360,6 +360,14 @@
       "type": "CV",
       "name": "My Master CV",
       "details": ""
+    },
+    {
+      "timestamp": "2026-07-26 20:38:15",
+      "date": "2026-07-26",
+      "action": "Updated Minor CV",
+      "type": "CV",
+      "name": "ZEDAGIM TESFAYE TANTU - Minor CV",
+      "details": ""
     }
   ],
   "wordExport": [
@@ -378,7 +386,7 @@
   "minorCV": {
     "title": "ZEDAGIM TESFAYE TANTU - Minor CV",
     "content": "My achievement  \n\n**What You Did:**\n- Interviewed 200+ potential victims\n- Saved 500+ potential victims from dangerous migration\n- Led a team of 4 using Lean Management and Kaizen\n\n**Methods Applied:**\n- 5S (Sort, Set, Shine, Standardize, Sustain)\n- Muda (waste elimination)\n- Muri (reducing overburden)\n- Mura (evening out workload)\n- PDCA (Plan-Do-Check-Act)\n- TQM (Total Quality Management)\n\n**Collaboration:**\n- Worked with stakeholders from different cultures:\n  - UK, South Africa, Uganda, Kenya\n  - Ethiopian Federal Police\n  - Ethiopian Justice Office\n\n**Reporting:**\n- Clear written reports\n- Visual communication (PowerPoint)\n- Email updates and Zoom meetings\n- Sent photo and video evidence quickly after fieldwork\n\n**Training Received:**\n- Certified in Debrief Interview Techniques from British Home Office\n- Learned open, closed, and probing questions\n- How to ask deep questions and find real root causes\n\n**Other:**\n- Trained 1000+ students in Kaizen at Horn and Universal College\n- Focused on safe work environment, work efficiency\n- Applied 5S, Muda, Muri, Mura, PDCA, Just-in-Time\n\n**Academic Administration:**\n- Evaluated and applied policy deployment in college\n- Helped with Quality Control Circle (QCC) report evaluation\n\n---\n\n### CODE 610: MARITIME GEOAI (Your Ocean Intelligence System)\n\n**What You Built:**\n- Designed a 4D decision support system dashboard using GeoAI\n- 4 Dimensions: Latitude (X), Longitude (Y), Depth of Water (Z), Time (Past/Present/Future)\n\n**Ship Tracking Features:**\n- Shows exact location on a map\n- Checks weather, speed, temperature, pressure\n- Calculates risks\n- Predicts arrival times\n- Detects borders of different zones\n- Shows satellite views \u2013 what a ship looks like from space\n\n**Technical Details:**\n- **Haversine Formula:** Calculates distance between two points on a sphere (like calculating nautical distance between two ports)\n  - Accurate for Earth's curvature\n  - Industry standard for marine navigation\n- **Open Meteo API:** Free weather service on the internet\n  - Gets live weather data: wind speed, temperature, humidity, pressure\n  - Free, real-time, global\n- **Risk:** Not estimated. Calculated.\n\n---\n\n### CODE 611: DIGITAL AGRICULTURE & HYDROLOGY (Your Irrigation System)\n\n**Hydrological Models Applied:**\n\n1. **SCS Curve Number (CN):**\n   - Estimates how much rainfall becomes runoff\n   - Estimates water infiltration into soil\n   - Assesses flood risk\n\n2. **FAO56 Penman-Monteith:**\n   - Calculates evapotranspiration\n   - Inputs: temperature, wind speed, humidity, solar radiation\n   - Shows how much water is lost at different times of day\n\n3. **NDVI (Normalized Difference Vegetation Index):**\n   - Measures how healthy a plant is\n   - Uses Sentinel-2 satellite images (from Copernicus Earth Observation Program)\n\n4. **SPI (Standardized Precipitation Index):**\n   - Measures how much rain has fallen compared to normal\n   - Uses: drought monitoring, irrigation planning, water resource management, climate analysis\n\n5. **CHIRPS:**\n   - Rainfall data set from Google Earth Engine\n   - Measures rainfall at a location over time\n   - Focuses on satellite observation\n   - Uses: irrigation planning, drought monitoring, flood risk analysis\n\n6. **CMIP6:**\n   - Studies past, present, and future climate change\n   - Provides: future rainfall change, temperature, wind patterns, sea level, drought\n\n---\n\n### CODE 300: TECHNOLOGY STACK (What You Replaced)\n\n**Free Python Stack (Replaced Expensive Software):**\n- Replaced: ArcGIS, QGIS, SWAT, HEC-HMS, CropWat, AquaCrop\n- Why? Fast, simple, no need for HTML/CSS/JavaScript\n- Free. Cloud-ready.\n\n**Your Philosophy:**\n> \"Data is only useful when people can understand it. I made complex systems but made them simple, clear, easy to understand.\"\n\n\n",
-    "lastUpdated": "2026-07-26 20:36:04",
+    "lastUpdated": "2026-07-26 20:38:15",
     "sections": []
   }
 }
