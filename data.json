@@ -34,6 +34,17 @@
       "link": "",
       "status": "active",
       "createdAt": "2026-07-26 15:45:08"
+    },
+    {
+      "id": "1785081294.331114",
+      "title": "misge",
+      "company": "ta isha ",
+      "deadline": "2026-07-29",
+      "location": "",
+      "notes": "sodo",
+      "link": "",
+      "status": "active",
+      "createdAt": "2026-07-26 15:54:54"
     }
   ],
   "masterCV": {
@@ -62,6 +73,13 @@
       "type": "Scholarship",
       "name": "moon",
       "details": ""
+    },
+    {
+      "timestamp": "2026-07-26 15:54:54",
+      "action": "Added",
+      "type": "Job",
+      "name": "misge",
+      "details": "Company: ta isha "
     }
   ]
 }
