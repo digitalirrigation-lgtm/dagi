@@ -100,6 +100,17 @@
       "link": "",
       "status": "active",
       "createdAt": "2026-07-26 15:56:41"
+    },
+    {
+      "id": "1785086358.447801",
+      "title": "jgfy",
+      "company": "sdt",
+      "deadline": "2026-07-24",
+      "location": "",
+      "notes": "tuu",
+      "link": "",
+      "status": "active",
+      "createdAt": "2026-07-26 17:19:18"
     }
   ],
   "masterCV": {
@@ -292,6 +303,14 @@
       "action": "Updated Minor CV",
       "type": "CV",
       "name": "ZEDAGIM TESFAYE TANTU - Minor CV",
+      "details": ""
+    },
+    {
+      "timestamp": "2026-07-26 17:19:18",
+      "date": "2026-07-26",
+      "action": "Added",
+      "type": "Job",
+      "name": "jgfy",
       "details": ""
     }
   ],
