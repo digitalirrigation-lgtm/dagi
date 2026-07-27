@@ -144,6 +144,17 @@
       "link": "",
       "status": "submitted",
       "createdAt": "2026-07-26 17:19:18"
+    },
+    {
+      "id": "1785150973.915724",
+      "title": "UNICEF",
+      "company": "NGO ",
+      "deadline": "2026-07-28",
+      "location": "",
+      "notes": "",
+      "link": "https://jobs.unicef.org/en-us/filter/?search-keyword=",
+      "status": "active",
+      "createdAt": "2026-07-27 14:16:13"
     }
   ],
   "masterCV": {
@@ -599,6 +610,14 @@
       "action": "Added Note",
       "type": "Note",
       "name": "THE 10/10 MASTER PROMPT: THE E...",
+      "details": ""
+    },
+    {
+      "timestamp": "2026-07-27 14:16:13",
+      "date": "2026-07-27",
+      "action": "Added",
+      "type": "Job",
+      "name": "UNICEF",
       "details": ""
     }
   ],
