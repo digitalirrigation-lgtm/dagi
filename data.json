@@ -1,17 +1,6 @@
 {
   "scholarships": [
     {
-      "id": "1785080666.330845",
-      "name": "\"TEST123\"",
-      "uni": "",
-      "deadline": "2026-07-26",
-      "country": "",
-      "notes": "",
-      "link": "",
-      "status": "submitted",
-      "createdAt": "2026-07-26 15:44:26"
-    },
-    {
       "id": "1785081222.733544",
       "name": "moon",
       "uni": "jju",
@@ -578,6 +567,14 @@
       "action": "Added CV Section",
       "type": "CV",
       "name": "Gy",
+      "details": ""
+    },
+    {
+      "timestamp": "2026-07-27 09:58:22",
+      "date": "2026-07-27",
+      "action": "Deleted",
+      "type": "Scholarship",
+      "name": "\"TEST123\"",
       "details": ""
     }
   ],
